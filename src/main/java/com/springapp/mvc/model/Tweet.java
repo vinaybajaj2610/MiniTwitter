@@ -1,6 +1,8 @@
 package com.springapp.mvc.model;
 
-import java.security.Timestamp;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
+import java.sql.Timestamp;
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,19 +11,21 @@ import java.security.Timestamp;
  * Time: 2:10 PM
  * To change this template use File | Settings | File Templates.
  */
+
+@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
 public class Tweet {
-    public long tweetid;
-    public long userid;
+    public Long tweetid;
+    public Long userid;
     public String username;
     public Timestamp timestamp;
     public String details;
 
 
-    public long getTweetid() {
+    public Long getTweetid() {
         return tweetid;
     }
 
-    public long getUserid() {
+    public Long getUserid() {
         return userid;
     }
 
@@ -37,11 +41,11 @@ public class Tweet {
         return details;
     }
 
-    public void setTweetid(long tweetid) {
+    public void setTweetid(Long tweetid) {
         this.tweetid = tweetid;
     }
 
-    public void setUserid(long userid) {
+    public void setUserid(Long userid) {
         this.userid = userid;
     }
 

@@ -8,21 +8,23 @@
 			http://www.springframework.org/schema/security/spring-security-3.0.xsd">
 	
 	<!-- This is where we configure Spring-Security  -->
-	<security:http auto-config="true" use-expressions="true" access-denied-page="/krams/auth/denied" >
+	<security:http auto-config="true" use-expressions="true" access-denied-page="/auth/denied" >
 	
-		<security:intercept-url pattern="/krams/auth/login" access="permitAll"/>
-		<security:intercept-url pattern="/krams/main/admin" access="hasRole('ROLE_ADMIN')"/>
-		<security:intercept-url pattern="/krams/main/common" access="hasRole('ROLE_USER')"/>
+		<security:intercept-url pattern="/auth/login" access="permitAll"/>
+		<security:intercept-url pattern="/users" access="permitAll"/>
+        <security:intercept-url pattern="/favicon.ico"  access="permitAll"/>
+		<security:intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
+
 		
 		<security:form-login
-				login-page="/krams/auth/login" 
-				authentication-failure-url="/krams/auth/login?error=true" 
-				default-target-url="/krams/main/common"/>
+				login-page="/auth/login"
+				authentication-failure-url="/auth/login?error=true"
+                authentication-success-handler-ref="AuthenticationSuccessHandler"/>
 			
 		<security:logout 
 				invalidate-session="true" 
-				logout-success-url="/krams/auth/login" 
-				logout-url="/krams/auth/logout"/>
+				logout-success-url="/auth/afterlogoutpage"
+				logout-url="/auth/logout"/>
 	
 	</security:http>
 	
@@ -37,6 +39,7 @@
 	<bean class="org.springframework.security.authentication.encoding.Md5PasswordEncoder" id="passwordEncoder"/>
 
 	<!-- A custom service where Spring will retrieve users and their corresponding access levels  -->
-	<bean id="customUserDetailsService" class="org.krams.tutorial.service.CustomUserDetailsService"/>
-	
+	<bean id="customUserDetailsService" class="com.springapp.mvc.service.CustomUserDetailsService"/>
+    <bean id="AuthenticationSuccessHandler" class="com.springapp.mvc.service.AuthenticationSuccessHandler"/>
+
 </beans>

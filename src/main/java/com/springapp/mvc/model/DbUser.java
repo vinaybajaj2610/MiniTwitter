@@ -1,6 +1,7 @@
 package com.springapp.mvc.model;
 
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  * Created with IntelliJ IDEA.
@@ -9,17 +10,19 @@ import org.codehaus.jackson.annotate.JsonIgnore;
  * Time: 2:06 PM
  * To change this template use File | Settings | File Templates.
  */
-public class User {
+
+@JsonSerialize(include= JsonSerialize.Inclusion.NON_NULL)
+public class DbUser {
 
 
-    public long userid;
+    public Long userid;
     public String username;
     public String name;
     public String email;
     public String password;
 
 
-    public long getUserid() {
+    public Long getUserid() {
         return userid;
     }
 
@@ -48,7 +51,7 @@ public class User {
     }
 
 
-    public void setUserid(long userid) {
+    public void setUserid(Long userid) {
         this.userid = userid;
     }
 

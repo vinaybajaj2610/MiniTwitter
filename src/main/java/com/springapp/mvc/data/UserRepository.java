@@ -1,6 +1,7 @@
 package com.springapp.mvc.data;
 
 import com.springapp.mvc.model.DbUser;
+import com.springapp.mvc.model.Tweet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -50,14 +52,23 @@ public class UserRepository {
 
     }
 
-    public DbUser fetchUser(long userid) {
-        return jdbcTemplate.queryForObject("select * from users where userid = ?",
-                new Object[]{userid}, new BeanPropertyRowMapper<>(DbUser.class));
-
-    }
-
-    public DbUser fetchUserByUsername(String username) {
+    public DbUser fetchUser(String username) {
         return jdbcTemplate.queryForObject("select * from users where username = ?",
                 new Object[]{username}, new BeanPropertyRowMapper<>(DbUser.class));
     }
+
+    public DbUser fetchUserByUsername(String username) {
+        return jdbcTemplate.queryForObject("select users.userid, users.username, users.email from users where username = ?",
+                new Object[]{username}, new BeanPropertyRowMapper<>(DbUser.class));
+    }
+
+    public List<DbUser> fetchFollowers(long userid) {
+        return jdbcTemplate.query("select users.userid, users.username from users, followers where followers.userid = ? and users.userid=followers.followerid", new Object[]{userid}, new BeanPropertyRowMapper<>(DbUser.class));
+    }
+
+    public List<DbUser> fetchFollowing(long userid) {
+        return jdbcTemplate.query("select users.userid, users.username from users, followers where followers.followerid = ? and users.userid=followers.userid", new Object[]{userid}, new BeanPropertyRowMapper<>(DbUser.class));
+    }
+
+
 }

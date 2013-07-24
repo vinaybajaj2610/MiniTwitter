@@ -4,7 +4,7 @@
 package com.springapp.mvc.web;
 
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/auth")
 public class LoginLogoutController {
         
-	protected static Logger logger = Logger.getLogger("controller");
+	//protected static Logger logger = Logger.getLogger("controller");
 
 	/**
 	 * Handles and retrieves the login JSP page
@@ -28,7 +28,7 @@ public class LoginLogoutController {
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public String getLoginPage(@RequestParam(value="error", required=false) boolean error,
 			ModelMap model) {
-		logger.debug("Received request to show login page");
+		//logger.debug("Received request to show login page");
 
 		// Add an error message to the model if login is unsuccessful
 		// The 'error' parameter is set to true based on the when the authentication has failed. 
@@ -39,7 +39,7 @@ public class LoginLogoutController {
 				authentication-failure-url="/krams/auth/login?error=true" 
 				default-target-url="/krams/main/common"/>
 		 */
-		if (error == true) {
+        if (error == true) {
 			// Assign an error message
 			model.put("error", "You have entered an invalid username or password!");
 		} else {
@@ -58,9 +58,14 @@ public class LoginLogoutController {
 	 */
 	@RequestMapping(value = "/denied", method = RequestMethod.GET)
  	public String getDeniedPage() {
-		logger.debug("Received request to show denied page");
+		//logger.debug("Received request to show denied page");
 		
 		// This will resolve to /WEB-INF/jsp/deniedpage.jsp
 		return "deniedpage";
 	}
+
+    @RequestMapping(value = "/afterlogoutpage", method = RequestMethod.GET)
+    public String getAfterLogoutPage() {
+        return "afterlogoutpage";
+    }
 }
