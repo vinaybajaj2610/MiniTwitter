@@ -1,6 +1,6 @@
 package com.springapp.mvc.data;
 
-import com.springapp.mvc.model.User;
+import com.springapp.mvc.model.DbUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -21,11 +21,11 @@ import java.util.Map;
  */
 
 @Repository
-public class UserRepositry {
+public class UserRepository {
     JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public UserRepositry(JdbcTemplate jdbcTemplate){
+    public UserRepository(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -50,14 +50,14 @@ public class UserRepositry {
 
     }
 
-    public User fetchUser(long userid) {
+    public DbUser fetchUser(long userid) {
         return jdbcTemplate.queryForObject("select * from users where userid = ?",
-                new Object[]{userid}, new BeanPropertyRowMapper<>(User.class));
+                new Object[]{userid}, new BeanPropertyRowMapper<>(DbUser.class));
 
     }
 
-    public User fetchUserByUsername(String username) {
+    public DbUser fetchUserByUsername(String username) {
         return jdbcTemplate.queryForObject("select * from users where username = ?",
-                new Object[]{username}, new BeanPropertyRowMapper<>(User.class));
+                new Object[]{username}, new BeanPropertyRowMapper<>(DbUser.class));
     }
 }
