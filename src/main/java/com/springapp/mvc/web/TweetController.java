@@ -48,11 +48,11 @@ public class TweetController {
 
 
     @RequestMapping(value = "/homepagetweets", method = RequestMethod.GET, produces = "application/json")
-    @ResponseBody
-    public List<Tweet> showHomePageTweets(HttpServletRequest request){
+    public String showHomePageTweets(HttpServletRequest request, ModelMap modelMap){
         long userid = (long) request.getSession().getAttribute("userid");
-
-        return repository.showHomePageTweets(userid);
+        List<Tweet> tweets = repository.showHomePageTweets(userid);
+        modelMap.addAttribute("tweets", tweets);
+        return "homepage";
     }
 
 }

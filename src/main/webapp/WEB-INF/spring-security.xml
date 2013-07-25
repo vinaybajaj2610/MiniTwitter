@@ -10,21 +10,23 @@
 	<!-- This is where we configure Spring-Security  -->
 	<security:http auto-config="true" use-expressions="true" access-denied-page="/auth/denied" >
 	
-		<security:intercept-url pattern="/auth/login" access="permitAll"/>
+		<security:intercept-url pattern="/login" access="permitAll"/>
 		<security:intercept-url pattern="/users" access="permitAll"/>
+        <security:intercept-url pattern="/static/**" access="permitAll"/>
+		<security:intercept-url pattern="/register" access="permitAll"/>
         <security:intercept-url pattern="/favicon.ico"  access="permitAll"/>
 		<security:intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
 
 		
 		<security:form-login
-				login-page="/auth/login"
-				authentication-failure-url="/auth/login?error=true"
+				login-page="/login"
+				authentication-failure-url="/login?error=true"
                 authentication-success-handler-ref="AuthenticationSuccessHandler"/>
 			
 		<security:logout 
 				invalidate-session="true" 
-				logout-success-url="/auth/afterlogoutpage"
-				logout-url="/auth/logout"/>
+				logout-success-url="/afterlogoutpage"
+				logout-url="/logout"/>
 	
 	</security:http>
 	

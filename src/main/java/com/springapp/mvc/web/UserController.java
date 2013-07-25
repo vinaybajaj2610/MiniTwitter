@@ -9,6 +9,7 @@ import org.springframework.security.core.codec.Hex;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -59,9 +60,12 @@ public class UserController {
         return repository.fetchUserByUsername(username);
     }
 
-    @RequestMapping(value = "/users", method = RequestMethod.POST)
+    @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ResponseBody
-    public String CreateUser(@RequestBody final DbUser user, HttpServletResponse response) throws Exception {
+    public String CreateUser(@ModelAttribute("user") DbUser user, BindingResult result, HttpServletResponse response) throws Exception {
+        if (result.hasErrors()){
+            System.out.println("Error in binding!!");
+        }
 
         long id = repository.addNewUser(user.getUsername(), user.getName(), user.getEmail(), encryptUsingMd5(user.getPassword()));
 

@@ -42,7 +42,7 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
         HttpSession httpSession = request.getSession();
         httpSession.setAttribute("userid", user.getUserid());
         httpSession.setAttribute("username", user.getUsername());
-        setDefaultTargetUrl("/home");
+        setDefaultTargetUrl("/homepagetweets");
         super.onAuthenticationSuccess(request, response, authentication);
     }
 }
