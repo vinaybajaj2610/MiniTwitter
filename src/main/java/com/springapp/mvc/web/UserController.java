@@ -1,11 +1,13 @@
 package com.springapp.mvc.web;
 
+import com.google.gson.Gson;
 import com.springapp.mvc.data.UserRepository;
 import com.springapp.mvc.model.DbUser;
 import com.springapp.mvc.model.Tweet;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.codec.Base64;
 import org.springframework.security.core.codec.Hex;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -78,17 +80,32 @@ public class UserController {
         return "";
     }
 
-    @RequestMapping(value = "/followers/{id}", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/followers", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public List<DbUser> fetchFollowers(@PathVariable("id") long userid){
-
-       return repository.fetchFollowers(userid);
+    public String fetchFollowers(HttpServletRequest request){
+        Long userid = (Long) request.getSession().getAttribute("userid");
+        List<DbUser> users = repository.fetchFollowers(userid);
+        Gson gson = new Gson();
+        String json = gson.toJson(users);
+        System.out.println(json);
+        return json;
     }
 
-    @RequestMapping(value = "/following/{id}", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/following", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
-    public List<DbUser> fetchFollowing(@PathVariable("id") long userid){
-        return repository.fetchFollowing(userid);
+    public String fetchFollowing(HttpServletRequest request){
+        Long userid = (Long) request.getSession().getAttribute("userid");
+        List<DbUser> users = repository.fetchFollowing(userid);
+        Gson gson = new Gson();
+        String json = gson.toJson(users);
+        System.out.println(json);
+        return json;
+    }
+
+    @RequestMapping(value = "/homepage", method = RequestMethod.GET)
+    public String homePage(ModelMap modelMap){
+        modelMap.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
+        return "homepage";
     }
 
 

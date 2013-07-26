@@ -39,6 +39,7 @@
     </style>
     <script src="/static/js/jquery.js"></script>
     <script src="/static/js/bootstrap.js"></script>
+    <script src="/static/js/home.js"></script>
     <link href="/static/css/bootstrap.css" rel="stylesheet">
     <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
 </head>
@@ -72,22 +73,25 @@
     <div class="row-fluid">
         <div class="span12">
             <div class="row-fluid">
-                <div class="span3" ><textarea rows="3"></textarea></div>
+                <div class="span3">
+                    <div class="well">
+                        <div><font size="5"><b><a href="/users/${username}">${username}'s</a> Home page</b></font></div>
+                        <textarea rows="3" cols="40" style="margin: 0px 0px 10px; width: 363px; height: 101px;"></textarea>
+                        <button class="btn btn-primary">Compose new Tweet</button>
+                    </div>
+
+                </div>
                 <div class="span6">
                     <ul class="nav nav-tabs" id="myTab">
-                        <li class="active"><a data-toggle="tab" href="#tweetsid">Tweets</a></li>
-                        <li><a data-toggle="tab" href="#followersid">Followers</a></li>
-                        <li><a data-toggle="tab" href="#followingid">Following</a></li>
+                        <li class="active"><a data-toggle="tab" href="#tweetfeeds">Tweets</a></li>
+                        <li><a data-toggle="tab" onclick="loadFollowers()" href="#userfollowers">Followers</a></li>
+                        <li><a data-toggle="tab" onclick="loadFollowing()" href="#userfollowing">Following</a></li>
                     </ul>
 
                     <div class="tab-content">
-                        <div class="tab-pane active" id="tweetsid">
-                            <c:forEach var="item" items="${tweets}" >
-                                <br> ${item.details} </br>
-                            </c:forEach>
-                        </div>
-                        <div class="tab-pane" id="followersid">Followers</div>
-                        <div class="tab-pane" id="followingid">Following</div>
+                        <div class="tab-pane active"  id="tweetfeeds"></div>
+                        <div class="tab-pane" id="userfollowers"></div>
+                        <div class="tab-pane" id="userfollowing"></div>
                     </div>
                 </div>
             </div>
@@ -98,8 +102,7 @@
 <!-- Le javascript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
-<script src="js/jquery.js"></script>
-<script src="js/bootstrap.js"></script>
+
 
 </body>
 </html>

@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.ui.ModelMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -42,7 +43,7 @@ public class AuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccess
         HttpSession httpSession = request.getSession();
         httpSession.setAttribute("userid", user.getUserid());
         httpSession.setAttribute("username", user.getUsername());
-        setDefaultTargetUrl("/homepagetweets");
+        setDefaultTargetUrl("/homepage");
         super.onAuthenticationSuccess(request, response, authentication);
     }
 }

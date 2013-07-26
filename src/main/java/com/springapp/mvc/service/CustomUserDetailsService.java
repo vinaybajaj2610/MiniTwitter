@@ -43,22 +43,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username)
 			throws UsernameNotFoundException, DataAccessException {
 
-
-        System.out.println("----------------------" + username);
         // Declare a null Spring User
 		UserDetails user = null;
 		
 		try {
 
-            System.out.println("------------2-------" + username);
 			// Search database for a user that matches the specified username
 			// You can provide a custom DAO to access your persistence layer
 			// Or use JDBC to access your database
 			// DbUser is our custom domain user. This is not the same as Spring's User
 			com.springapp.mvc.model.DbUser dbUser = repository.fetchUser(username);
 
-            System.out.println("------------3-------" + username);
-			
 			// Populate the Spring User object with details from the dbUser
 			// Here we just pass the username, password, and access level
 			// getAuthorities() will translate the access level to the correct role type

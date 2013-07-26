@@ -7,6 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
+import com.google.gson.Gson;
+
+
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -47,12 +50,15 @@ public class TweetController {
     }
 
 
-    @RequestMapping(value = "/homepagetweets", method = RequestMethod.GET, produces = "application/json")
-    public String showHomePageTweets(HttpServletRequest request, ModelMap modelMap){
-        long userid = (long) request.getSession().getAttribute("userid");
+    @RequestMapping(value = "/homepagetweets", method = RequestMethod.GET)
+    @ResponseBody
+    public String showHomePageTweets(HttpServletRequest request){
+        Long userid = (Long) request.getSession().getAttribute("userid");
         List<Tweet> tweets = repository.showHomePageTweets(userid);
-        modelMap.addAttribute("tweets", tweets);
-        return "homepage";
+        Gson gson = new Gson();
+        String json = gson.toJson(tweets);
+        System.out.println(json);
+        return json;
     }
 
 }

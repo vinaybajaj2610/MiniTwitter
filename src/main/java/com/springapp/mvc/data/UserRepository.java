@@ -66,8 +66,8 @@ public class UserRepository {
         return jdbcTemplate.query("select users.userid, users.username from users, followers where followers.userid = ? and users.userid=followers.followerid", new Object[]{userid}, new BeanPropertyRowMapper<>(DbUser.class));
     }
 
-    public List<DbUser> fetchFollowing(long userid) {
-        return jdbcTemplate.query("select users.userid, users.username from users, followers where followers.followerid = ? and users.userid=followers.userid", new Object[]{userid}, new BeanPropertyRowMapper<>(DbUser.class));
+    public List<DbUser> fetchFollowing(long followerid) {
+        return jdbcTemplate.query("select users.userid, users.username from users, followers where followers.followerid = ? and users.userid=followers.userid", new Object[]{followerid}, new BeanPropertyRowMapper<>(DbUser.class));
     }
 
 
