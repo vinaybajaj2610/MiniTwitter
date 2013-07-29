@@ -38,7 +38,7 @@ public class AppConfig {
         source.setPortNumber(5432);
         source.setDatabaseName("twitter");
         source.setUser("postgres");
-        source.setPassword("postgres");
+        source.setPassword("a");
         source.setMaxConnections(10);
         return new JdbcTemplate(source);
     }

@@ -3,9 +3,11 @@ package com.springapp.mvc.web;
 import com.springapp.mvc.data.TweetRepository;
 import com.springapp.mvc.model.Tweet;
 import com.springapp.mvc.model.DbUser;
+import com.springapp.mvc.model.TweetForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
 
@@ -43,7 +45,7 @@ public class TweetController {
         return "";
     }
 
-    @RequestMapping(value = "/tweets/{id}", method = RequestMethod.GET, produces = "application/json")
+    @RequestMapping(value = "/users/tweets/{id}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public List<Tweet> fetchTweets(@PathVariable("id") long userid) {
         return repository.getTweets(userid);
@@ -59,6 +61,36 @@ public class TweetController {
         String json = gson.toJson(tweets);
         System.out.println(json);
         return json;
+    }
+
+    @RequestMapping(value = "/tweets/{userid}", method = RequestMethod.GET)
+    @ResponseBody
+    public String showUserTweets(@PathVariable("userid") Long userid){
+//        Long userid = (Long) request.getSession().getAttribute("userid");
+        List<Tweet> tweets = repository.getTweets(userid);
+        Gson gson = new Gson();
+        String json = gson.toJson(tweets);
+        System.out.println(json);
+        return json;
+    }
+
+
+
+
+
+    @RequestMapping(value = "/addTweet", method = RequestMethod.POST)
+    @ResponseBody
+    public String addTweet(@ModelAttribute("tweetForm") TweetForm tweet,BindingResult result, HttpServletRequest request) throws Exception {
+        if (result.hasErrors()){
+            System.out.println("Error in binding!!");
+        }
+
+//        String details = (String) request.getParameter("details");
+        HttpSession httpSession = request.getSession();
+           Long userid = (Long)httpSession.getAttribute("userid");
+           String username = (String) httpSession.getAttribute("username");
+          long id = repository.addTweet(userid, username, tweet.getDetails());
+          return "";
     }
 
 }

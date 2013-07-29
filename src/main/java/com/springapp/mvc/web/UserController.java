@@ -13,6 +13,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -62,6 +63,18 @@ public class UserController {
         return repository.fetchUserByUsername(username);
     }
 
+    @RequestMapping(value="/{profile_username}", method = RequestMethod.GET)
+    public ModelAndView showProfile(@PathVariable("profile_username") String profile_username, HttpSession httpSession) {
+        ModelAndView model = new ModelAndView();
+        DbUser user =  repository.fetchUserByUsername(profile_username);
+        model.addObject("profile_id",user.getUserid()+"");
+        model.addObject("profile_name",user.getName());
+        model.addObject("profile_username",user.getUsername());
+        //model.addObject("isfollowing", repository.fetchFollowing(repository.getSessionUserId(httpSession), user.getUserid()) + "");
+        model.setViewName("/profile");
+        return model;
+    }
+
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     @ResponseBody
     public String CreateUser(@ModelAttribute("user") DbUser user, BindingResult result, HttpServletResponse response) throws Exception {
@@ -91,10 +104,32 @@ public class UserController {
         return json;
     }
 
+    @RequestMapping(value = "/followers/{userid}", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public String fetchFollowers(@PathVariable("userid") Long userid){
+//        Long userid = (Long) request.getSession().getAttribute("userid");
+        List<DbUser> users = repository.fetchFollowers(userid);
+        Gson gson = new Gson();
+        String json = gson.toJson(users);
+        System.out.println(json);
+        return json;
+    }
+
     @RequestMapping(value = "/following", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public String fetchFollowing(HttpServletRequest request){
         Long userid = (Long) request.getSession().getAttribute("userid");
+        List<DbUser> users = repository.fetchFollowing(userid);
+        Gson gson = new Gson();
+        String json = gson.toJson(users);
+        System.out.println(json);
+        return json;
+    }
+
+    @RequestMapping(value = "/following/{userid}", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public String fetchFollowing(@PathVariable("userid") Long userid){
+//        Long userid = (Long) request.getSession().getAttribute("userid");
         List<DbUser> users = repository.fetchFollowing(userid);
         Gson gson = new Gson();
         String json = gson.toJson(users);

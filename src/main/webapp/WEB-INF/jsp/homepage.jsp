@@ -8,6 +8,8 @@
 <!DOCTYPE html>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+
 
 <html lang="en">
 <head>
@@ -54,10 +56,10 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="brand" href="#">Project name</a>
+            <a class="brand" href="#">Twitter</a>
             <div class="nav-collapse collapse">
                 <p class="navbar-text pull-right">
-                    Logged in as <a href="#" class="navbar-link">Username</a>
+                    Logged in as <a href="#" class="navbar-link">${username}</a>
                 </p>
                 <ul class="nav">
                     <li class="active"><a href="#">Home</a></li>
@@ -74,11 +76,14 @@
         <div class="span12">
             <div class="row-fluid">
                 <div class="span3">
+                    <div><font size="5"><b><a href="/users/${username}">${username}'s</a> Home page</b></font></div>
+                    <form method="POST" action="addTweet">
                     <div class="well">
-                        <div><font size="5"><b><a href="/users/${username}">${username}'s</a> Home page</b></font></div>
-                        <textarea rows="3" cols="40" style="margin: 0px 0px 10px; width: 363px; height: 101px;"></textarea>
-                        <button class="btn btn-primary">Compose new Tweet</button>
+                        <textarea name="details" id="details" rows="5" cols="50"></textarea>
+                            <%--<input type="text" class="input-xlarge" id="details" name="details" placeholder="Details">--%>
+                        <button type="submit" class="btn btn-primary">Compose new Tweet</button>
                     </div>
+                    </form>
 
                 </div>
                 <div class="span6">

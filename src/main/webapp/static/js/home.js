@@ -13,11 +13,11 @@ function loadTweets(){
         dataType: 'json',
         success: function(data){
             for(var i=0; i < data.length; i++){
-               $('#tweetfeeds').append(
+                $('#tweetfeeds').append(
                     $('<div>').addClass('well')
-                    .append($('<div>').text(data[i].details))
-                    .append($('<div>').text("by: ").addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/users/"+data[i].username)))
-                    .append($('<div>').text(data[i].timestamp).addClass("pull-right"))
+                        .append($('<div>').text(data[i].details))
+                        .append($('<div>').text("by: ").addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
+                        .append($('<div>').text(data[i].timestamp).addClass("pull-right"))
                 );
             }
         }
@@ -25,7 +25,7 @@ function loadTweets(){
 }
 
 $(document).ready(function(){
-  loadTweets();
+    loadTweets();
 });
 
 
@@ -38,7 +38,7 @@ function loadFollowers(){
             for(var i=0; i < data.length; i++){
                 $('#userfollowers').append(
                     $('<div>').addClass('well')
-                        .append($('<div>').addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/users/"+data[i].username)))
+                        .append($('<div>').addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
                 );
             }
         }
@@ -55,7 +55,7 @@ function loadFollowing(){
             for(var i=0; i < data.length; i++){
                 $('#userfollowing').append(
                     $('<div>').addClass('well')
-                        .append($('<div>').addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/users/"+data[i].username)))
+                        .append($('<div>').addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
                 );
             }
         }
