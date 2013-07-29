@@ -31,6 +31,7 @@ $(document).ready(function(){
 
 function loadFollowers(){
     $.ajax({
+
         url: "/followers",
         dataType: 'json',
         success: function(data){
