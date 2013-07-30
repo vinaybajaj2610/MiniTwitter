@@ -2,6 +2,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 
+<%
+    String username = request.getParameter( "username" );
+%>
+
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -38,6 +42,30 @@
 </head>
 
 <body>
+
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container-fluid">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="#">Twitter</a>
+            <div class="nav-collapse collapse">
+                <p class="navbar-text pull-right">
+                    Logged in as <a href="#" class="navbar-link">${username}</a>
+                </p>
+                <ul class="nav">
+                    <li class="active"><a href="homepage">Home</a></li>
+                    <li><a href="${username}">Profile</a></li>
+                    <li><a href="auth/logout">Logout</a></li>
+                </ul>
+            </div><!--/.nav-collapse -->
+        </div>
+    </div>
+</div>
+
 <div class="container-fluid">
     <div class="row-fluid">
         <div class="span12">
@@ -45,13 +73,10 @@
                 <div class="span3">
                     <div class="well">
                         <div><font size="5"><b>
-                            <%--<a href="/users/${profile_username}">--%>
-                            ${profile_username}'s
-                                <%--</a> --%>
-                                Profile Page</b></font></div>
-                        <%--<textarea rows="3" cols="40" style="margin: 0px 0px 10px; width: 363px; height: 101px;"></textarea>--%>
-                        <%--<button class="btn btn-primary">Compose new Tweet</button>--%>
-                    </div>
+                            ${profile_username}'s Profile Page</b></font></div>
+                        </div>
+                    <button id="followed" onclick="follow()" class="btn btn-primary">Follow</button>
+                    <button id="unfollowed" onclick="unfollow()" class="btn btn-primary">Unfollow</button>
 
                 </div>
                 <div class="span6">
@@ -71,6 +96,8 @@
         </div>
     </div>
 </div><!--/.fluid-container-->
+
+
 <script>
 
     function loadTweets(){
@@ -89,9 +116,40 @@
             }
         });
     }
+    function followUnfollowButton(){
+        $.ajax({
+            url: "/checkfollow/${profile_id}",
+            dataType: 'json',
+            success: function(data){
+                if(data === 0) {
+                    $('#unfollowed').hide();
+                }
+                else if(data == 1){
+                    $('#followed').hide();
+                }
+                else {
+                    $('#followed').hide();
+                    $('#unfollowed').hide();
+                }
+            }
+        });
+    }
+
+    function followUnfollow(flag) {
+        if(flag == "unfollow") {
+            $('#unfollowed').hide();
+            $('#followed').show();
+
+        }
+        else {
+            $('#unfollowed').show();
+            $('#followed').hide();
+        }
+    }
 
     $(document).ready(function(){
         loadTweets();
+        followUnfollowButton();
     });
 
 
@@ -112,6 +170,23 @@
         });
     }
 
+    function follow() {
+        $.ajax({
+            url: "/follow/${profile_id}",
+            success: function(){
+                followUnfollow("follow");
+            }
+        });
+    }
+
+    function unfollow() {
+        $.ajax({
+            url: "/unfollow/${profile_id}",
+            success: function(){
+                followUnfollow("unfollow");
+            }
+        });
+    }
 
     function loadFollowing(){
         $.ajax({

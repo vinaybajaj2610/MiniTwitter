@@ -6,10 +6,12 @@
  * To change this template use File | Settings | File Templates.
  */
 
+var tweetpage = 1;
 
-function loadTweets(){
+
+function loadMoreTweets(){
     $.ajax({
-        url: "/homepagetweets",
+        url: "/homepagetweets?page="+tweetpage,
         dataType: 'json',
         success: function(data){
             for(var i=0; i < data.length; i++){
@@ -25,13 +27,11 @@ function loadTweets(){
 }
 
 $(document).ready(function(){
-    loadTweets();
+    loadMoreTweets();
 });
-
 
 function loadFollowers(){
     $.ajax({
-
         url: "/followers",
         dataType: 'json',
         success: function(data){
@@ -62,3 +62,30 @@ function loadFollowing(){
         }
     });
 }
+
+function addTweet(){
+    $.ajax({
+        url: "/addtweet",
+        type:"POST",
+        data:JSON.stringify({details:$('#details').val()}),
+        contentType:"application/json",
+        success:function(){
+            console.log("hey");
+            alert("New tweet added!!");
+            $('#details').val('');
+        },
+        error: function(){
+
+        }
+    });
+}
+
+
+function bindScroll(){
+    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+        tweetpage++;
+        loadMoreTweets();
+    }
+}
+
+$(window).scroll(bindScroll);

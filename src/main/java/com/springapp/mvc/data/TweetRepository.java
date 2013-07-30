@@ -51,7 +51,7 @@ public class TweetRepository {
         return jdbcTemplate.query("SELECT * FROM tweets WHERE userid=?", new Object[]{userid}, new BeanPropertyRowMapper<Tweet>(Tweet.class));
     }
 
-    public List<Tweet> showHomePageTweets(long userid) {
-        return jdbcTemplate.query("select tweets.username, tweets.timestamp, tweets.details from tweets where userid in (select userid from followers where followers.followerid = ?)", new Object[]{userid}, new BeanPropertyRowMapper<>(Tweet.class));
+    public List<Tweet> showHomePageTweets(long userid, long page) {
+        return jdbcTemplate.query("select tweets.username, tweets.timestamp, tweets.details from tweets where userid in (select userid from followers where followers.followerid = ?) limit 15 offset ?", new Object[]{userid, (page-1)*15}, new BeanPropertyRowMapper<>(Tweet.class));
     }
 }

@@ -30,6 +30,10 @@
             padding: 9px 0;
         }
 
+        .addtweetdetails{
+            width: 370px;
+        }
+
         @media (max-width: 980px) {
             /* Enable use of floated navbar text */
             .navbar-text.pull-right {
@@ -63,8 +67,8 @@
                 </p>
                 <ul class="nav">
                     <li class="active"><a href="#">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#contact">Contact</a></li>
+                    <li><a href="${username}">Profile</a></li>
+                    <li><a href="auth/logout">Logout</a></li>
                 </ul>
             </div><!--/.nav-collapse -->
         </div>
@@ -76,15 +80,10 @@
         <div class="span12">
             <div class="row-fluid">
                 <div class="span3">
-                    <div><font size="5"><b><a href="/users/${username}">${username}'s</a> Home page</b></font></div>
-                    <form method="POST" action="addTweet">
                     <div class="well">
-                        <textarea name="details" id="details" rows="5" cols="50"></textarea>
-                            <%--<input type="text" class="input-xlarge" id="details" name="details" placeholder="Details">--%>
-                        <button type="submit" class="btn btn-primary">Compose new Tweet</button>
+                        <textarea class="addtweetdetails" name="details" id="details" rows="4" ></textarea>
+                        <button onclick="addTweet()" class="btn btn-primary">Compose new Tweet</button>
                     </div>
-                    </form>
-
                 </div>
                 <div class="span6">
                     <ul class="nav nav-tabs" id="myTab">

@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -63,11 +64,43 @@ public class UserRepository {
     }
 
     public List<DbUser> fetchFollowers(long userid) {
-        return jdbcTemplate.query("select users.userid, users.username from users, followers where followers.userid = ? and users.userid=followers.followerid", new Object[]{userid}, new BeanPropertyRowMapper<>(DbUser.class));
+        java.util.Date date= new java.util.Date();
+        Timestamp timestamp = new Timestamp(date.getTime());
+        return jdbcTemplate.query("select users.userid, users.username from users, followers where followers.userid = ? and users.userid=followers.followerid and timestamp > ?", new Object[]{userid, timestamp}, new BeanPropertyRowMapper<>(DbUser.class));
     }
 
     public List<DbUser> fetchFollowing(long followerid) {
-        return jdbcTemplate.query("select users.userid, users.username from users, followers where followers.followerid = ? and users.userid=followers.userid", new Object[]{followerid}, new BeanPropertyRowMapper<>(DbUser.class));
+        java.util.Date date= new java.util.Date();
+        Timestamp timestamp = new Timestamp(date.getTime());
+        return jdbcTemplate.query("select users.userid, users.username from users, followers where followers.followerid = ? and users.userid=followers.userid and timestamp > ?", new Object[]{followerid, timestamp}, new BeanPropertyRowMapper<>(DbUser.class));
+    }
+
+    public void follow(Long userid, Long followerid) {
+        jdbcTemplate.update("DELETE from followers  WHERE userid=? and followerid=?", new Object[]{userid, followerid});
+        final SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate);
+        insert.setTableName("followers");
+        insert.setColumnNames(Arrays.asList("userid", "followerid"));
+        Map<String, Object> param = new HashMap<>();
+        param.put("userid", userid);
+        param.put("followerid",followerid);
+        insert.execute(param);
+    }
+
+    public int unfollow(Long userid, Long followerid) {
+        java.util.Date date= new java.util.Date();
+        Timestamp timestamp = new Timestamp(date.getTime());
+        return jdbcTemplate.update("UPDATE followers SET timestamp = ? WHERE userid=? and followerid=?", new Object[]{timestamp, userid, followerid});
+    }
+
+    public Integer isFollower(Long userid, Long followerid) {
+        java.util.Date date= new java.util.Date();
+        Timestamp timestamp = new Timestamp(date.getTime());
+        int count = jdbcTemplate.queryForInt("select count(*) from followers where userid = ? and followerid=? and timestamp > ?", new Object[]{userid, followerid, timestamp});
+
+        if(count>0) {
+            return 1;
+        }
+        return 0;
     }
 
 

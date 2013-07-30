@@ -144,4 +144,34 @@ public class UserController {
     }
 
 
+    @RequestMapping(value = "/unfollow/{userid}", method = RequestMethod.GET)
+    @ResponseBody
+    public void unfollow(@PathVariable("userid") Long userid, HttpServletRequest request){
+        Long followerid = (Long) request.getSession().getAttribute("userid");
+        repository.unfollow(userid, followerid);
+    }
+
+    @RequestMapping(value = "/follow/{userid}", method = RequestMethod.GET)
+    @ResponseBody
+    public void follow(@PathVariable("userid") Long userid, HttpServletRequest request){
+        Long followerid = (Long) request.getSession().getAttribute("userid");
+        System.out.println(userid + " " + followerid);
+        repository.follow(userid, followerid);
+    }
+
+    @RequestMapping(value = "/checkfollow/{userid}", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public String isFollower(@PathVariable("userid") Long userid, HttpServletRequest request){
+        Long followerid = (Long) request.getSession().getAttribute("userid");
+        Gson gson = new Gson();
+        String json;
+        if(followerid != userid) {
+            json = gson.toJson(repository.isFollower(userid, followerid));
+        }
+        else {
+            json = gson.toJson(2);
+        }
+        return json;
+    }
+
 }
