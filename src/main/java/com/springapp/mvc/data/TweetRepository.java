@@ -52,7 +52,11 @@ public class TweetRepository {
         return jdbcTemplate.query("SELECT * FROM tweets WHERE userid=? order by timestamp desc", new Object[]{userid}, new BeanPropertyRowMapper<Tweet>(Tweet.class));
     }
 
-    public List<Tweet> showHomePageTweets(long userid, long page) {
-        return jdbcTemplate.query("select tweets.username, tweets.timestamp, tweets.details from tweets, followers where followers.followerid = ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.timestamp desc limit 15 offset ?", new Object[]{userid, (page-1)*15}, new BeanPropertyRowMapper<>(Tweet.class));
+    public List<Tweet> showHomePageTweets(long userid, Long tweetid) {
+        if(tweetid.equals(Long.valueOf(0)))
+        {
+            return jdbcTemplate.query("select tweets.username, tweets.timestamp, tweets.details, tweets.tweetid from tweets, followers where followers.followerid = ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.tweetid desc limit 15 /*offset ?*/", new Object[]{userid}, new BeanPropertyRowMapper<>(Tweet.class));
+        }
+        return jdbcTemplate.query("select tweets.username, tweets.timestamp, tweets.details, tweets.tweetid from tweets, followers where followers.followerid = ? and tweets.tweetid < ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.tweetid desc limit 10/*offset ?*/", new Object[]{userid, tweetid}, new BeanPropertyRowMapper<>(Tweet.class));
     }
 }

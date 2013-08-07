@@ -6,15 +6,18 @@
  * To change this template use File | Settings | File Templates.
  */
 
-var tweetpage = 1;
+var tweetid = 0;
 var maxlimit = 140;
 
 
 function loadMoreTweets(){
+
     $.ajax({
-        url: "/homepagetweets?page="+tweetpage,
+        url: "/homepagetweets?tweetid="+tweetid,
         dataType: 'json',
         success: function(data){
+            tweetid = data[data.length-1].tweetid;
+            console.log(tweetid);
             for(var i=0; i < data.length; i++){
                 $('#tweetfeeds').append(
                     $('<div>').addClass('well')
@@ -22,6 +25,7 @@ function loadMoreTweets(){
                         .append($('<div>').text("by: ").addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
                         .append($('<div>').text(data[i].timestamp).addClass("pull-right"))
                 );
+                //tweetid = data[i].tweetid;
             }
         }
     });
@@ -76,6 +80,7 @@ function addTweet(){
                 console.log("hey");
                 alert("New tweet added!!");
                 $('#tweettext').val('');
+                $('#cntfield').html('140');
             },
             error: function(){
 
@@ -94,7 +99,6 @@ function textCounter() {
 
 function bindScroll(){
     if((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
-        tweetpage++;
         loadMoreTweets();
     }
 }

@@ -52,9 +52,9 @@ public class TweetController {
 
     @RequestMapping(value = "/homepagetweets", method = RequestMethod.GET)
     @ResponseBody
-    public String showHomePageTweets(@RequestParam(value="page") long page ,HttpServletRequest request){
+    public String showHomePageTweets(@RequestParam(value="tweetid") Long tweetid ,HttpServletRequest request){
         Long userid = (Long) request.getSession().getAttribute("userid");
-        List<Tweet> tweets = repository.showHomePageTweets(userid, page);
+        List<Tweet> tweets = repository.showHomePageTweets(userid, tweetid);
         Gson gson = new Gson();
         String json = gson.toJson(tweets);
         return json;

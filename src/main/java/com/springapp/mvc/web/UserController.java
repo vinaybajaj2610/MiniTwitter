@@ -74,7 +74,7 @@ public class UserController {
         } else {
             response.setStatus(409);
         }
-        return "";
+        return "you are successfully Registered!!";
     }
 
     @RequestMapping(value = "/followers", method = RequestMethod.GET, produces = "application/json")
@@ -158,4 +158,48 @@ public class UserController {
         return json;
     }
 
+    /////////Update profile///////////
+    @RequestMapping(value = "/updateProfile", method = RequestMethod.POST)
+    public String saveChanges(ModelMap modelMap, HttpServletRequest request) throws Exception {
+        Long userid = (Long) request.getSession().getAttribute("userid");
+        List<DbUser> users = repository.getPassword(userid);
+        String userPassword = users.get(0).getPassword();
+        String oldPassword = request.getParameter("oldPassword");
+        String newPassword = request.getParameter("newPassword");
+        String newPassword1 = request.getParameter("newPassword1");
+        String email = request.getParameter("email");
+        String name = request.getParameter("name");
+        modelMap.addAttribute("name", name);
+        modelMap.addAttribute("email", email);
+
+        System.out.println(oldPassword);
+
+        if(oldPassword==null || oldPassword.equals("")) {
+            modelMap.addAttribute("msg", "Please Enter your password");
+        }
+        else if(!userPassword.equals(Md5Encryption.encryptUsingMd5(oldPassword)))  {
+            modelMap.addAttribute("msg", "The old password entered is incorrect");
+        }
+        else if(!newPassword.equals(newPassword1)){
+            modelMap.addAttribute("msg", "The new passwords do not match");
+        }
+        else if(newPassword==null || newPassword.equals("")) {
+            repository.updateUser(userid, name, email);
+            modelMap.addAttribute("msg", "The changes have been made");
+        }
+        else {
+            repository.updateUser(userid, name, email, Md5Encryption.encryptUsingMd5(newPassword));
+            modelMap.addAttribute("msg", "The changes have been made");
+        }
+        return "edit";
+    }
+    @RequestMapping(value = "/editProfile", method = RequestMethod.GET)
+    public String editProfile(ModelMap modelMap, HttpServletRequest request){
+        Long userid = (Long) request.getSession().getAttribute("userid");
+        DbUser user = repository.fetchUserByUserid(userid);
+        modelMap.addAttribute("name", user.getName());
+        modelMap.addAttribute("email", user.getEmail());
+        return "edit";
+    }
+    ///////////
 }

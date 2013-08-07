@@ -66,8 +66,9 @@
                     Logged in as <a href="#" class="navbar-link">${username}</a>
                 </p>
                 <ul class="nav">
-                    <li class="active"><a href="homepage">Home</a></li>
+                    <li class="active"><a href="#">Home</a></li>
                     <li><a href="${username}">Profile</a></li>
+                    <li><a href="editProfile" class="navbar-link" style="text-align: center;">Edit Profile</a></li>
                     <li><a href="auth/logout">Logout</a></li>
                 </ul>
             </div><!--/.nav-collapse -->

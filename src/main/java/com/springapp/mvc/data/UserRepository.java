@@ -64,6 +64,11 @@ public class UserRepository {
                 new Object[]{username}, new BeanPropertyRowMapper<>(DbUser.class));
     }
 
+    public DbUser fetchUserByUserid(Long userid) {
+        return jdbcTemplate.queryForObject("select users.userid, users.name, users.email from users where userid = ?",
+                new Object[]{userid}, new BeanPropertyRowMapper<>(DbUser.class));
+    }
+
     public List<DbUser> fetchFollowers(long userid) {
         java.util.Date date= new java.util.Date();
         Timestamp timestamp = new Timestamp(date.getTime());
@@ -94,12 +99,9 @@ public class UserRepository {
     }
 
     public Integer isFollower(Long userid, Long followerid) {
-        System.out.println("ded");
         java.util.Date date= new java.util.Date();
         Timestamp timestamp = new Timestamp(date.getTime());
         int count = jdbcTemplate.queryForInt("select count(*) from followers where userid = ? and followerid=? and timestamp > ?", new Object[]{userid, followerid, timestamp});
-        System.out.println("weewe");
-
         if(count>0) {
             return 1;
         }
@@ -155,4 +157,20 @@ public class UserRepository {
     public List<Tweet> fetchUsersNewsFeed(Long userid) {
         return jdbcTemplate.query("select tweets.username, tweets.timestamp, tweets.details from tweets, followers where followers.followerid = ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.timestamp desc limit 50", new Object[]{userid}, new BeanPropertyRowMapper<>(Tweet.class));
     }
+
+
+    ////Update User/////
+    public void updateUser(Long userid, String name, String email) {
+        jdbcTemplate.update("UPDATE users SET name = ?, email = ? WHERE userid=?", new Object[]{name, email, userid});
+    }
+
+    public void updateUser(Long userid, String name, String email, String newPassword) {
+        jdbcTemplate.update("UPDATE users SET name = ?, email = ?, password = ? WHERE userid=?", new Object[]{name, email, newPassword, userid});
+    }
+
+    public List<DbUser> getPassword(Long userid) {
+        return jdbcTemplate.query("select userid, password from users where userid = ?", new Object[]{userid}, new BeanPropertyRowMapper<>(DbUser.class));
+    }
+    //////////////
+
 }
