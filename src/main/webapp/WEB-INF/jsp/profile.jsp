@@ -72,14 +72,15 @@
             <div class="row-fluid">
                 <div class="span3">
                     <div class="well">
+                        <button class="btn btn-primary" onclick="editProfile()">Edit Profile</button>
                         <div><font size="5"><b>
                             ${profile_username}'s Profile Page</b></font></div>
                         </div>
-                    <button id="followed" onclick="follow()" class="btn btn-primary">Follow</button>
-                    <button id="unfollowed" onclick="unfollow()" class="btn btn-primary">Unfollow</button>
+                    <button id="followed" onclick="follow()" class="btn btn-primary">follow</button>
+                    <button id="unfollowed" onmouseover="changeBtnNametounfollow()" onmouseout="changeBtnNametofollowing()" onclick="unfollow()" class="btn btn-primary">following</button>
 
                 </div>
-                <div class="span6">
+                <div class="span7">
                     <ul class="nav nav-tabs" id="myTab">
                         <li class="active"><a data-toggle="tab" href="#tweetfeeds">Tweets</a></li>
                         <li><a data-toggle="tab" onclick="loadFollowers()" href="#userfollowers">Followers</a></li>
@@ -116,12 +117,13 @@
             }
         });
     }
+
     function followUnfollowButton(){
         $.ajax({
             url: "/checkfollow/${profile_id}",
             dataType: 'json',
             success: function(data){
-                if(data === 0) {
+                if(data == 0) {
                     $('#unfollowed').hide();
                 }
                 else if(data == 1){
@@ -187,6 +189,19 @@
             }
         });
     }
+
+    function changeBtnNametounfollow(){
+        $('#unfollowed').removeClass("btn btn-primary");
+        $('#unfollowed').addClass("btn btn-danger");
+        $('#unfollowed').html("unfollow");
+    }
+
+    function changeBtnNametofollowing(){
+        $('#unfollowed').removeClass("btn btn-danger");
+        $('#unfollowed').addClass("btn btn-primary");
+        $('#unfollowed').html("following");
+    }
+
 
     function loadFollowing(){
         $.ajax({

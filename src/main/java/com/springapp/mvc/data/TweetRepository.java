@@ -2,6 +2,7 @@ package com.springapp.mvc.data;
 
 import com.springapp.mvc.model.Tweet;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,10 +49,10 @@ public class TweetRepository {
 
     public List<Tweet> getTweets(long userid)
     {
-        return jdbcTemplate.query("SELECT * FROM tweets WHERE userid=?", new Object[]{userid}, new BeanPropertyRowMapper<Tweet>(Tweet.class));
+        return jdbcTemplate.query("SELECT * FROM tweets WHERE userid=? order by timestamp desc", new Object[]{userid}, new BeanPropertyRowMapper<Tweet>(Tweet.class));
     }
 
     public List<Tweet> showHomePageTweets(long userid, long page) {
-        return jdbcTemplate.query("select tweets.username, tweets.timestamp, tweets.details from tweets where userid in (select userid from followers where followers.followerid = ?) limit 15 offset ?", new Object[]{userid, (page-1)*15}, new BeanPropertyRowMapper<>(Tweet.class));
+        return jdbcTemplate.query("select tweets.username, tweets.timestamp, tweets.details from tweets, followers where followers.followerid = ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.timestamp desc limit 15 offset ?", new Object[]{userid, (page-1)*15}, new BeanPropertyRowMapper<>(Tweet.class));
     }
 }

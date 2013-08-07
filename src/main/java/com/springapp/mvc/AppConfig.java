@@ -1,6 +1,9 @@
 package com.springapp.mvc;
 
 //import com.springapp.mvc.interceptors.CheckAuthorizedInterceptor;
+import com.springapp.mvc.data.UserRepository;
+import com.springapp.mvc.interceptors.ApiAuthenticationInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.postgresql.ds.PGPoolingDataSource;
 import org.springframework.context.annotation.ComponentScan;
@@ -9,8 +12,10 @@ import org.springframework.context.annotation.Configuration;
         import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
-        import java.beans.PropertyVetoException;
+import java.beans.PropertyVetoException;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,15 +30,15 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 //@PropertySource(value = "classpath:/application.properties")
 @EnableWebMvc
 @EnableTransactionManagement
-public class AppConfig {
+public class AppConfig extends WebMvcConfigurerAdapter{
 
-
+    @Autowired
+    private UserRepository userRepository;
 
     @Bean
-    public JdbcTemplate jdbcTemplate() throws PropertyVetoException {
+    public static JdbcTemplate jdbcTemplate() throws PropertyVetoException {
 
         PGPoolingDataSource source = new PGPoolingDataSource();
-//        source.setDataSourceName("DataSource1");
         source.setServerName("localhost");
         source.setPortNumber(5432);
         source.setDatabaseName("twitter");
@@ -48,9 +53,9 @@ public class AppConfig {
         return new PropertySourcesPlaceholderConfigurer();
     }
 
-//    @Override
-//    public void addInterceptors(InterceptorRegistry registry){
-//        CheckAuthorizedInterceptor interceptor = new CheckAuthorizedInterceptor();
-//        registry.addInterceptor(interceptor).addPathPatterns( "/" );
-//    }
+    @Override
+    public void addInterceptors(InterceptorRegistry registry){
+        ApiAuthenticationInterceptor interceptor = new ApiAuthenticationInterceptor(userRepository);
+        registry.addInterceptor(interceptor).addPathPatterns( "/api/fetchUserPosts", "/api/fetchUserPosts/**", "/api/createPost", "/api/createPost/**","/api/fetchUsersNewsFeed","/api/fetchUsersNewsFeed/**");
+    }
 }

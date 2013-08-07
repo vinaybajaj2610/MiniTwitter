@@ -3,6 +3,7 @@ package com.springapp.mvc.data;
 import com.springapp.mvc.model.DbUser;
 import com.springapp.mvc.model.Tweet;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -93,9 +94,11 @@ public class UserRepository {
     }
 
     public Integer isFollower(Long userid, Long followerid) {
+        System.out.println("ded");
         java.util.Date date= new java.util.Date();
         Timestamp timestamp = new Timestamp(date.getTime());
         int count = jdbcTemplate.queryForInt("select count(*) from followers where userid = ? and followerid=? and timestamp > ?", new Object[]{userid, followerid, timestamp});
+        System.out.println("weewe");
 
         if(count>0) {
             return 1;
@@ -104,4 +107,52 @@ public class UserRepository {
     }
 
 
+    public void addRequestToken(Long userid, String reqToken) {
+        final SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate);
+        insert.setTableName("token");
+        insert.setColumnNames(Arrays.asList("userid", "requesttoken"));
+        Map<String, Object> param = new HashMap<>();
+        param.put("userid", userid);
+        param.put("requesttoken",reqToken);
+        insert.execute(param);
+    }
+
+    public void addAccessToken(String reqToken, String accessToken) {
+        jdbcTemplate.update("UPDATE token SET accesstoken = ? WHERE requesttoken = ?", new Object[]{accessToken, reqToken});
+    }
+
+    public Map<String,Object> fetchUseridByRequestToken(String reqToken) {
+        return jdbcTemplate.queryForMap("select * from token where requesttoken = ?", new Object[]{reqToken});
+    }
+
+    public String fetchAccessToken(String reqToken) {
+        return (String)jdbcTemplate.queryForObject("select accesstoken from token where requesttoken = ?",
+                new Object[]{reqToken}, String.class);
+    }
+
+    public Long fetchUseridByAccessToken(String token) {
+        try {
+            return jdbcTemplate.queryForObject("select userid from useraccesstoken where accesstoken = ?",
+            new Object[]{token}, Long.class);
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void AddAccessTokenInUserAccessTable(Long userid, String accessToken) {
+        final SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate);
+        insert.setTableName("useraccesstoken");
+        insert.setColumnNames(Arrays.asList("userid", "accesstoken"));
+        Map<String, Object> param = new HashMap<>();
+        param.put("userid", userid);
+        param.put("accesstoken",accessToken);
+        insert.execute(param);
+    }
+
+
+    // api method which fetch top 50 tweets from news feed
+    public List<Tweet> fetchUsersNewsFeed(Long userid) {
+        return jdbcTemplate.query("select tweets.username, tweets.timestamp, tweets.details from tweets, followers where followers.followerid = ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.timestamp desc limit 50", new Object[]{userid}, new BeanPropertyRowMapper<>(Tweet.class));
+    }
 }

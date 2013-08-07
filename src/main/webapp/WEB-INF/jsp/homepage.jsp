@@ -31,7 +31,7 @@
         }
 
         .addtweetdetails{
-            width: 370px;
+            width: 97%;
         }
 
         @media (max-width: 980px) {
@@ -60,13 +60,13 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="brand" href="#">Twitter</a>
+            <a class="brand" href="#"><b>MiniTwitter</b></a>
             <div class="nav-collapse collapse">
                 <p class="navbar-text pull-right">
                     Logged in as <a href="#" class="navbar-link">${username}</a>
                 </p>
                 <ul class="nav">
-                    <li class="active"><a href="#">Home</a></li>
+                    <li class="active"><a href="homepage">Home</a></li>
                     <li><a href="${username}">Profile</a></li>
                     <li><a href="auth/logout">Logout</a></li>
                 </ul>
@@ -81,19 +81,20 @@
             <div class="row-fluid">
                 <div class="span3">
                     <div class="well">
-                        <textarea class="addtweetdetails" name="details" id="details" rows="4" ></textarea>
-                        <button onclick="addTweet()" class="btn btn-primary">Compose new Tweet</button>
+                    <textarea onkeydown="textCounter()" onkeyup="textCounter()" class="addtweetdetails" name="details" id="tweettext" rows="4" placeholder="Compose new Tweet..."></textarea>
+                    <button onclick="addTweet()" id="tweetButton" class="btn btn-primary ">Tweet</button>
+                    <p id="cntfield" class="pull-right"></p>
                     </div>
                 </div>
-                <div class="span6">
+                <div class="span7">
                     <ul class="nav nav-tabs" id="myTab">
-                        <li class="active"><a data-toggle="tab" href="#tweetfeeds">Tweets</a></li>
-                        <li><a data-toggle="tab" onclick="loadFollowers()" href="#userfollowers">Followers</a></li>
-                        <li><a data-toggle="tab" onclick="loadFollowing()" href="#userfollowing">Following</a></li>
+                        <li class="active"><a data-toggle="tab" href="#tweetfeeds"><b>Tweets</b></a></li>
+                        <li><a data-toggle="tab" onclick="loadFollowers()" href="#userfollowers"><b>Followers</b></a></li>
+                        <li><a data-toggle="tab" onclick="loadFollowing()" href="#userfollowing"><b>Following</b></a></li>
                     </ul>
 
                     <div class="tab-content">
-                        <div class="tab-pane active"  id="tweetfeeds"></div>
+                        <div class="tab-pane active" id="tweetfeeds"></div>
                         <div class="tab-pane" id="userfollowers"></div>
                         <div class="tab-pane" id="userfollowing"></div>
                     </div>

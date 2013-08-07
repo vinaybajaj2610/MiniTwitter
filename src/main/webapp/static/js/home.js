@@ -7,6 +7,7 @@
  */
 
 var tweetpage = 1;
+var maxlimit = 140;
 
 
 function loadMoreTweets(){
@@ -27,6 +28,7 @@ function loadMoreTweets(){
 }
 
 $(document).ready(function(){
+    $('#cntfield').html('140');
     loadMoreTweets();
 });
 
@@ -64,22 +66,31 @@ function loadFollowing(){
 }
 
 function addTweet(){
-    $.ajax({
-        url: "/addtweet",
-        type:"POST",
-        data:JSON.stringify({details:$('#details').val()}),
-        contentType:"application/json",
-        success:function(){
-            console.log("hey");
-            alert("New tweet added!!");
-            $('#details').val('');
-        },
-        error: function(){
+    if ($('#tweettext').val()!=""){
+        $.ajax({
+            url: "/addtweet",
+            type:"POST",
+            data:JSON.stringify({details:$('#tweettext').val()}),
+            contentType:"application/json",
+            success:function(){
+                console.log("hey");
+                alert("New tweet added!!");
+                $('#tweettext').val('');
+            },
+            error: function(){
 
-        }
-    });
+            }
+        });
+    }
 }
 
+
+function textCounter() {
+    if ($('#tweettext').val().length > maxlimit)
+        $('#tweettext').val($('#tweettext').val().substring(0,maxlimit));
+    else
+        $('#cntfield').html(maxlimit-$('#tweettext').val().length);
+}
 
 function bindScroll(){
     if((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {

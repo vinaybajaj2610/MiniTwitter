@@ -14,7 +14,7 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
-
+import com.springapp.mvc.service.Md5Encryption;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -38,22 +38,6 @@ public class UserController {
     @Autowired
     public UserController(UserRepository repository) {
         this.repository = repository;
-    }
-
-
-
-    public String encryptUsingMd5(String password) throws Exception {
-        String hash = null;
-        try{
-            MessageDigest messageDigest = MessageDigest.getInstance("MD5");
-            messageDigest.update(password.getBytes("UTF8"));
-            byte[] raw = messageDigest.digest();
-            hash = new String(Hex.encode(raw));
-        }
-        catch (Exception e){
-
-        }
-        return hash;
     }
 
 
@@ -82,7 +66,7 @@ public class UserController {
             System.out.println("Error in binding!!");
         }
 
-        long id = repository.addNewUser(user.getUsername(), user.getName(), user.getEmail(), encryptUsingMd5(user.getPassword()));
+        long id = repository.addNewUser(user.getUsername(), user.getName(), user.getEmail(), Md5Encryption.encryptUsingMd5(user.getPassword()));
 
         if (id != -1){
             response.setStatus(201);

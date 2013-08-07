@@ -12,7 +12,7 @@
     <title>Twitter </title>
 </head>
 
-<body>
+<body background="/static/img/login-bg.jpg">
 <div class="container">
     <div class="span4 offset8 ">
         <div class = "well">

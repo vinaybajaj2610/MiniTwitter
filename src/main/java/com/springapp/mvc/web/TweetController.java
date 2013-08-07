@@ -1,6 +1,7 @@
 package com.springapp.mvc.web;
 
 import com.springapp.mvc.data.TweetRepository;
+import com.springapp.mvc.data.UserRepository;
 import com.springapp.mvc.model.Tweet;
 import com.springapp.mvc.model.DbUser;
 import com.springapp.mvc.model.Tweet;
@@ -10,9 +11,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import com.google.gson.Gson;
-
-
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -33,7 +31,7 @@ public class TweetController {
     private final TweetRepository repository;
 
     @Autowired
-    public TweetController(TweetRepository repository) {
+    public TweetController(TweetRepository repository, UserRepository userRepository) {
         this.repository = repository;
     }
 
@@ -65,7 +63,6 @@ public class TweetController {
     @RequestMapping(value = "/tweets/{userid}", method = RequestMethod.GET)
     @ResponseBody
     public String showUserTweets(@PathVariable("userid") Long userid){
-//        Long userid = (Long) request.getSession().getAttribute("userid");
         List<Tweet> tweets = repository.getTweets(userid);
         Gson gson = new Gson();
         String json = gson.toJson(tweets);
@@ -81,5 +78,7 @@ public class TweetController {
         String username = (String) httpSession.getAttribute("username");
         long id = repository.addTweet(userid, username, tweet.getDetails());
     }
+
+
 
 }

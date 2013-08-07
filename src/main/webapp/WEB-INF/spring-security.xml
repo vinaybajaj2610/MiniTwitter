@@ -13,6 +13,7 @@
 		<security:intercept-url pattern="/login" access="permitAll"/>
 		<security:intercept-url pattern="/users" access="permitAll"/>
         <security:intercept-url pattern="/static/**" access="permitAll"/>
+        <security:intercept-url pattern="/api/**" access="permitAll"/>
 		<security:intercept-url pattern="/register" access="permitAll"/>
         <!--<security:intercept-url pattern="/favicon.ico"  access="permitAll"/>-->
 		<security:intercept-url pattern="/**" access="hasRole('ROLE_USER')"/>
