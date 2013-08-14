@@ -1,11 +1,11 @@
 package com.springapp.mvc.apicontroller;
 
+import com.springapp.mvc.data.TweetRepository;
 import com.springapp.mvc.data.UserRepository;
 import com.springapp.mvc.model.DbUser;
 import com.springapp.mvc.model.Tweet;
 import com.springapp.mvc.service.Md5Encryption;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
@@ -25,20 +25,22 @@ import java.util.UUID;
 @Controller
 public class apiUserController {
 
-    private final UserRepository repository;
+    private final UserRepository userRepository;
+    private final TweetRepository tweetRepository;
 
     @Autowired
-    public apiUserController(UserRepository repository) {
-        this.repository = repository;
+    public apiUserController(UserRepository repository, TweetRepository tweetRepository) {
+        this.userRepository = repository;
+        this.tweetRepository = tweetRepository;
     }
 
 
     @RequestMapping(value = "/api/getRequestToken", method = RequestMethod.POST)
     @ResponseBody
     public String getRequestToken(@RequestParam("username") String username) {
-        Long userid = repository.fetchUser(username).getUserid();
+        Long userid = userRepository.fetchUser(username).getUserid();
         String reqToken = UUID.randomUUID().toString();
-        repository.addRequestToken(userid, reqToken);
+        userRepository.addRequestToken(userid, reqToken);
         return reqToken;
     }
 
@@ -51,14 +53,14 @@ public class apiUserController {
 
     @RequestMapping(value = "/api/authorizeUser", method = RequestMethod.POST)
     public String authorizeUserWithToken(@RequestParam("username") String username, @RequestParam("password") String password,@RequestParam("requestToken") String reqToken) throws Exception {
-        DbUser user = repository.fetchUser(username);
-        Map<String, Object> map = repository.fetchUseridByRequestToken(reqToken);
+        DbUser user = userRepository.fetchUser(username);
+        Map<String, Object> map = userRepository.fetchUseridByRequestToken(reqToken);
 
         System.out.println(Md5Encryption.encryptUsingMd5(password) + " " + user.getPassword());
         Long userid = (Long) map.get("userid");
         if (Md5Encryption.encryptUsingMd5(password).equals(user.getPassword()) && userid.equals(user.getUserid())){
             String accessToken = UUID.randomUUID().toString();
-            repository.addAccessToken(reqToken, accessToken);
+            userRepository.addAccessToken(reqToken, accessToken);
             return "successpage";
         }
         return "errorpage";
@@ -67,17 +69,32 @@ public class apiUserController {
     @RequestMapping(value = "/api/getAccessToken", method = RequestMethod.POST)
     @ResponseBody
     public String getAccessToken(@RequestParam("requestToken") String reqToken) {
-        Map<String, Object> map = repository.fetchUseridByRequestToken(reqToken);
+        Map<String, Object> map = userRepository.fetchUseridByRequestToken(reqToken);
         String accessToken = (String) map.get("accesstoken");
         Long userid = (Long) map.get("userid");
-        repository.AddAccessTokenInUserAccessTable(userid, accessToken);
+        userRepository.AddAccessTokenInUserAccessTable(userid, accessToken);
         return accessToken;
     }
 
     @RequestMapping(value = "/api/fetchUsersNewsFeed", method = RequestMethod.POST)
     @ResponseBody
     public List<Tweet> fetchUsersNewsFeed(@RequestHeader("accessToken") String accessToken) {
-        Long userid = repository.fetchUseridByAccessToken(accessToken);
-        return repository.fetchUsersNewsFeed(userid);
+        Long userid = userRepository.fetchUseridByAccessToken(accessToken);
+        return userRepository.fetchUsersNewsFeed(userid);
     }
+
+    @RequestMapping(value = "/api/fetchFollowers", method = RequestMethod.POST)
+    @ResponseBody
+    public List<DbUser> fetchFollowers(@RequestParam("username") String username) {
+        DbUser user = userRepository.fetchUser(username);
+        return userRepository.fetchFollowers(user.getUserid());
+    }
+
+    @RequestMapping(value = "/api/fetchFollowing", method = RequestMethod.POST)
+    @ResponseBody
+    public List<DbUser> fetchFollowing(@RequestParam("username") String username) {
+        DbUser follower = userRepository.fetchUser(username);
+        return userRepository.fetchFollowing(follower.getUserid());
+    }
+
 }

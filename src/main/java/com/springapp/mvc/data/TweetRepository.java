@@ -52,11 +52,22 @@ public class TweetRepository {
         return jdbcTemplate.query("SELECT * FROM tweets WHERE userid=? order by timestamp desc", new Object[]{userid}, new BeanPropertyRowMapper<Tweet>(Tweet.class));
     }
 
+    // api for fetching user tweets
+    public List<Tweet> getUserPosts(long userid)
+    {
+        return jdbcTemplate.query("SELECT * FROM tweets WHERE userid=? order by timestamp desc limit 50", new Object[]{userid}, new BeanPropertyRowMapper<Tweet>(Tweet.class));
+    }
+
     public List<Tweet> showHomePageTweets(long userid, Long tweetid) {
         if(tweetid.equals(Long.valueOf(0)))
         {
             return jdbcTemplate.query("select tweets.username, tweets.timestamp, tweets.details, tweets.tweetid from tweets, followers where followers.followerid = ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.tweetid desc limit 15 /*offset ?*/", new Object[]{userid}, new BeanPropertyRowMapper<>(Tweet.class));
         }
         return jdbcTemplate.query("select tweets.username, tweets.timestamp, tweets.details, tweets.tweetid from tweets, followers where followers.followerid = ? and tweets.tweetid < ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.tweetid desc limit 10/*offset ?*/", new Object[]{userid, tweetid}, new BeanPropertyRowMapper<>(Tweet.class));
+    }
+
+
+    public List<Tweet> checkNewFreshTweets(Long userid, Long tweetid) {
+        return jdbcTemplate.query("select tweets.username, tweets.timestamp, tweets.details, tweets.tweetid from tweets, followers where followers.followerid = ? and tweets.tweetid > ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.tweetid desc", new Object[]{userid, tweetid}, new BeanPropertyRowMapper<>(Tweet.class));
     }
 }

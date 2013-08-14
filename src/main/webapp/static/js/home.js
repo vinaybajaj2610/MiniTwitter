@@ -8,7 +8,25 @@
 
 var tweetid = 0;
 var maxlimit = 140;
+var latestTweetid;
+var freshTweetData;
 
+
+function formTweet(user){
+    /*var tweetHtml = "<div class='well' style='margin: 10px'>" +
+                        "<div class='pull-left'>" + "<a href=/" + user['username'] + ">" + user['username'] + "</a></div>" +
+                        "<div class='pull-right'>"+ user['timestamp'] + "</div>" +
+                        "<br/><div>"+ user['details'] +"</div>" +
+                     "</div>";
+    console.log(tweetHtml);*/
+
+    return $('<div>').addClass('well').css('margin','10px')
+        .append($('<div>').addClass("pull-left").append($('<a>').text(user.username).attr("href","/"+user.username)))
+        .append($('<div>').text(user.timestamp).addClass("pull-right"))
+        .append($('</br>'))
+        .append($('<div>').text(user.details));
+
+}
 
 function loadMoreTweets(){
 
@@ -18,22 +36,27 @@ function loadMoreTweets(){
         success: function(data){
             tweetid = data[data.length-1].tweetid;
             console.log(tweetid);
+
+            if (data.length > 0 && data[0].tweetid > latestTweetid)
+                latestTweetid = data[0].tweetid;
+
             for(var i=0; i < data.length; i++){
                 $('#tweetfeeds').append(
-                    $('<div>').addClass('well')
-                        .append($('<div>').text(data[i].details))
-                        .append($('<div>').text("by: ").addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
-                        .append($('<div>').text(data[i].timestamp).addClass("pull-right"))
+                    formTweet(data[i])
                 );
-                //tweetid = data[i].tweetid;
             }
         }
     });
 }
 
 $(document).ready(function(){
+
+    latestTweetid  = 0;
+    freshTweetData = [];
     $('#cntfield').html('140');
     loadMoreTweets();
+    $('#tweetButton').attr("disabled",true);
+    setInterval(checkNewTweets, 15000);
 });
 
 function loadFollowers(){
@@ -86,11 +109,20 @@ function addTweet(){
 
             }
         });
+        $('#tweetButton').attr("disabled",true);
     }
+
 }
 
 
 function textCounter() {
+
+    if ($('#tweettext').val().length > 0){
+        $('#tweetButton').removeAttr("disabled");
+    }
+    else
+        $('#tweetButton').attr("disabled",true);
+
     if ($('#tweettext').val().length > maxlimit)
         $('#tweettext').val($('#tweettext').val().substring(0,maxlimit));
     else
@@ -104,3 +136,37 @@ function bindScroll(){
 }
 
 $(window).scroll(bindScroll);
+
+
+function notifyUserForNewTweets(data) {
+
+    if (data.length > 0){
+        freshTweetData = $.merge(data,freshTweetData);
+        $('#newTweetCount').remove();
+        $('#tweetfeeds').prepend("<div style='text-align: center; font: bold; color: #ffffff' id='newTweetCount' onclick='loadFreshTweets()'>" + freshTweetData.length + " new tweets" + "</div>");
+        latestTweetid = freshTweetData[0].tweetid;
+    }
+}
+
+function loadFreshTweets(){
+
+    $('#newTweetCount').remove();
+    for(var i=freshTweetData.length-1; i >= 0; i--){
+        $('#tweetfeeds').prepend(
+            formTweet(freshTweetData[i])
+        );
+    }
+    freshTweetData = [];
+
+}
+function checkNewTweets() {
+    $.ajax({
+        url: "/checkNewTweets?tweetid="+latestTweetid,
+        dataType: 'json',
+        success: function(data){
+            notifyUserForNewTweets(data);
+        }
+    });
+
+}
+

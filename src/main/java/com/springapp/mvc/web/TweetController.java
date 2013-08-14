@@ -79,6 +79,14 @@ public class TweetController {
         long id = repository.addTweet(userid, username, tweet.getDetails());
     }
 
-
+    @RequestMapping(value = "/checkNewTweets", method = RequestMethod.GET)
+    @ResponseBody
+    public String checkNewTweets(@RequestParam(value="tweetid") Long tweetid ,HttpServletRequest request){
+        Long userid = (Long) request.getSession().getAttribute("userid");
+        List<Tweet> tweets = repository.checkNewFreshTweets(userid, tweetid);
+        Gson gson = new Gson();
+        String json = gson.toJson(tweets);
+        return json;
+    }
 
 }
