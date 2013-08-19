@@ -76,8 +76,9 @@
                 <ul class="nav pull-right" >
                     <li>
                         <form id="searchBox" style="margin-bottom: 0; margin-right: 10px">
-                            <input id="search" type="text" class="search-query" style="height:20px;margin-top:4px;">
-                            <div class="icon-search icon-white"></div>
+
+                            <input id="search" type="text" class="search-query" style="height:20px;margin-top:4px;" placeholder="Search Username">
+                            <div class="icon-search icon-white" style="margin-top: 4px"></div>
                         </form>
                     </li>
                     <li>
@@ -87,7 +88,6 @@
                     </li>
                     <li><a href="auth/logout">Logout</a></li>
                 </ul>
-                <%--<li><input type="text" id="search" class="search-query"><span class="icon nav-search"></span></li>--%>
                 <ul class="nav">
                     <li class="active"><a href="homepage">Home</a></li>
                     <li><a href="${username}">Profile</a></li>
@@ -95,8 +95,6 @@
 
                 </ul>
             </div><!--/.nav-collapse -->
-
-            <%--<input type="text" id="search" class="input-medium search-query">--%>
         </div>
     </div>
 </div>

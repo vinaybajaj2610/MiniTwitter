@@ -13,7 +13,6 @@ import java.util.HashMap;
 public class TrieNode
 {
     char letter;
-    TrieNode[] links;
     HashMap map;
     boolean fullWord;
 
