@@ -13,11 +13,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import com.springapp.mvc.service.Md5Encryption;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.Principal;
@@ -77,6 +80,28 @@ public class UserController {
         return "you are successfully Registered!!";
     }
 
+    @RequestMapping(value = "/saveImage", method = RequestMethod.POST)
+    @ResponseBody
+    public String handleUpload(
+            @RequestParam(value = "file", required = false) MultipartFile multipartFile,
+            HttpServletRequest request) {
+
+        String orgName = multipartFile.getOriginalFilename();
+
+        String filePath = "/home/vinay/Downloads/twimages/" + request.getSession().getAttribute("userid") + ".jpg";
+        File dest = new File(filePath);
+        try {
+            multipartFile.transferTo(dest);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            return "File uploaded failed:" + orgName;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "File uploaded failed:" + orgName;
+        }
+        return "File uploaded:" + orgName;
+    }
+
     @RequestMapping(value = "/followers", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public String fetchFollowers(HttpServletRequest request){
@@ -122,8 +147,10 @@ public class UserController {
     }
 
     @RequestMapping(value = "/homepage", method = RequestMethod.GET)
-    public String homePage(ModelMap modelMap){
+    public String homePage(ModelMap modelMap, HttpServletRequest request){
         modelMap.addAttribute("username", SecurityContextHolder.getContext().getAuthentication().getName());
+        System.out.println( request.getSession().getAttribute("name"));
+        modelMap.addAttribute("name", request.getSession().getAttribute("name"));
         return "homepage";
     }
 

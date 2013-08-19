@@ -14,7 +14,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Bootstrap, from Twitter</title>
+    <title>Twitter</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -105,14 +105,25 @@
             <div class="row-fluid">
                 <div class="span3">
                     <div class="well">
-                    <textarea onkeydown="textCounter()" onkeyup="textCounter()" class="addtweetdetails" name="details" id="tweettext" rows="4" placeholder="Compose new Tweet..."></textarea>
-                    <button onclick="addTweet()" id="tweetButton" class="btn btn-primary ">Tweet</button>
-                    <p id="cntfield" class="pull-right"></p>
+                        <img border="0" src="http://localhost/images/${userid}.jpg" onError="this.src = 'http://localhost/images/default.jpg'"
+                             alt="Profile Pic" class="img-rounded" style="height:40px; width:40px; float:left">
+                        <div style="display: inline-block;float: left;"><h3 style="padding-left: 5px;display: inline-block;float: left;"><a href=${username}> ${name}</a></h3>
+                            <h5 style="display: inline-block;float: right;margin-top: 22px;padding-left: 4px;">@${username}</h5></div>
+                        <textarea onkeydown="textCounter()" onkeyup="textCounter()" class="addtweetdetails" name="details" id="tweettext" rows="4" placeholder="Compose new Tweet..."></textarea>
+                        <button onclick="addTweet()" id="tweetButton" class="btn btn-primary ">Tweet</button>
+                        <p id="cntfield" class="pull-right"></p>
+                        <div>${msg}</div>
                     </div>
+
+                    <br>Please upload a file
+                    <form method="post" action="saveImage" enctype="multipart/form-data">
+                        <input type="file" name="file"/>
+                        <input type="submit" value="Upload Image"/>
+                    </form>
                 </div>
                 <div class="span7">
                     <ul class="nav nav-tabs" id="myTab">
-                        <li class="active"><a data-toggle="tab" href="#tweetfeeds"><b>Tweets</b></a></li>
+                        <li class="active"><a data-toggle="tab" onclick="updateTab()" href="#tweetfeeds"><b>Tweets</b></a></li>
                         <li><a data-toggle="tab" onclick="loadFollowers()" href="#userfollowers"><b>Followers</b></a></li>
                         <li><a data-toggle="tab" onclick="loadFollowing()" href="#userfollowing"><b>Following</b></a></li>
                     </ul>

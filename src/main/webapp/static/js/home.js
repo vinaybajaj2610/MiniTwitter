@@ -10,8 +10,8 @@ var tweetid = 0;
 var maxlimit = 140;
 var latestTweetid;
 var freshTweetData;
-var followers;
-var usernames;
+
+var tabActive = 1;
 
 
 function isUrl(s) {
@@ -79,18 +79,10 @@ function loadMoreTweets(){
     });
 }
 
-function loadUsernames(){
-    $.ajax({
-        url: "/loadUsernames",
-        dataType: 'json',
-        success: function(data){
-            for (var i = 0; i < data.length; i++){
-                if (i%5==0) console.log(data[i].username);
-                usernames.push(data[i].username);
-            }
-        }
-    });
+function updateTab() {
+    tabActive = 1;
 }
+
 
 $(document).ready(function(){
 
@@ -114,6 +106,7 @@ $(function() {
 });
 
 function loadFollowers(){
+    tabActive = 2;
     $.ajax({
         url: "/followers",
         dataType: 'json',
@@ -123,6 +116,8 @@ function loadFollowers(){
                 $('#userfollowers').append(
                     $('<div>').addClass('well')
                         .append($('<div>').addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
+                        .append($('<div>').addClass("pull-right").text(data[i].email))
+
                 );
             }
         }
@@ -131,6 +126,7 @@ function loadFollowers(){
 
 
 function loadFollowing(){
+    tabActive = 3;
     $.ajax({
         url: "/following",
         dataType: 'json',
@@ -140,6 +136,8 @@ function loadFollowing(){
                 $('#userfollowing').append(
                     $('<div>').addClass('well')
                         .append($('<div>').addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
+                        .append($('<div>').addClass("pull-right").text(data[i].email))
+
                 );
             }
         }
@@ -154,10 +152,10 @@ function addTweet(){
             data:JSON.stringify({details:$('#tweettext').val()}),
             contentType:"application/json",
             success:function(){
-                console.log("hey");
                 alert("New tweet added!!");
                 $('#tweettext').val('');
                 $('#cntfield').html('140');
+                updateJedis();
             },
             error: function(){
 
@@ -165,9 +163,17 @@ function addTweet(){
         });
         $('#tweetButton').attr("disabled",true);
     }
-
 }
 
+function updateJedis() {
+
+    $.ajax({
+        url: "/newTweetJedisUpdate",
+        dataType: 'json',
+        success: function(){
+        }
+    });
+}
 
 function textCounter() {
 
@@ -184,7 +190,7 @@ function textCounter() {
 }
 
 function bindScroll(){
-    if((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+    if(((window.innerHeight + window.scrollY) >= document.body.offsetHeight && tabActive==1)) {
         loadMoreTweets();
     }
 }

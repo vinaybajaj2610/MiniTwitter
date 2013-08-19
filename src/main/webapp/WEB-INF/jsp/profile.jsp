@@ -53,14 +53,26 @@
             </button>
             <a class="brand" href="#"><b>MiniTwitter</b></a>
             <div class="nav-collapse collapse">
-                <p class="navbar-text pull-right">
-                    Logged in as <a href="#" class="navbar-link">${username}</a>
-                </p>
+
+                <ul class="nav pull-right" >
+                    <li>
+                        <form id="searchBox" style="margin-bottom: 0; margin-right: 10px">
+                            <input id="search" type="text" class="search-query" style="height:20px;margin-top:4px;" placeholder="Search Username">
+                            <div class="icon-search icon-white" style="margin-top: 4px"></div>
+                        </form>
+                    </li>
+                    <li>
+                        <p class="navbar-text">
+                            Logged in as <a href="#" class="navbar-link">${username}</a>
+                        </p>
+                    </li>
+                    <li><a href="auth/logout">Logout</a></li>
+                </ul>
                 <ul class="nav">
                     <li class="active"><a href="homepage">Home</a></li>
                     <li><a href="${username}">Profile</a></li>
                     <li><a href="editProfile" class="navbar-link" style="text-align: center;">Edit Profile</a></li>
-                    <li><a href="auth/logout">Logout</a></li>
+
                 </ul>
             </div><!--/.nav-collapse -->
         </div>
@@ -76,13 +88,15 @@
                         <div><font size="5"><b>
                             ${profile_username}'s Profile Page</b></font></div>
                         </div>
+                    <img border="0" src="http://localhost/images/${userid}.jpg" onError="this.src = 'http://localhost/images/default.jpg'" alt="Profile Pic" width="300" height="150">s
                     <button id="followed" onclick="follow()" class="btn btn-primary">follow</button>
                     <button id="unfollowed" onmouseover="changeBtnNametounfollow()" onmouseout="changeBtnNametofollowing()" onclick="unfollow()" class="btn btn-primary">following</button>
+
 
                 </div>
                 <div class="span7">
                     <ul class="nav nav-tabs" id="myTab">
-                        <li class="active"><a data-toggle="tab" href="#tweetfeeds">Tweets</a></li>
+                        <li class="active"><a data-toggle="tab" onclick="updateTab()" href="#tweetfeeds">Tweets</a></li>
                         <li><a data-toggle="tab" onclick="loadFollowers()" href="#userfollowers">Followers</a></li>
                         <li><a data-toggle="tab" onclick="loadFollowing()" href="#userfollowing">Following</a></li>
                     </ul>
@@ -100,6 +114,8 @@
 
 
 <script>
+    var tweetid = 0;
+    var tabActive =1;
 
     function isUrl(s) {
         var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
@@ -143,7 +159,7 @@
         return finaldiv;
     }
 
-    function loadTweets(){
+    /*function loadTweets(){
         $.ajax({
             url: "/tweets/${profile_id}",
             dataType: 'json',
@@ -155,6 +171,25 @@
                 }
             }
         });
+    }*/
+
+    function loadTweets(){
+        $.ajax({
+            url: "/tweets/${profile_id}/"+tweetid,
+            dataType: 'json',
+            success: function(data){
+                tweetid = data[data.length-1].tweetid;
+                for(var i=0; i < data.length; i++){
+                    $('#tweetfeeds').append(
+                        formTweet(data[i])
+                    );
+                }
+            }
+        });
+    }
+
+    function updateTab() {
+        tabActive = 1;
     }
 
     function followUnfollowButton(){
@@ -195,6 +230,7 @@
 
 
     function loadFollowers(){
+        tabActive = 2;
         $.ajax({
             url: "/followers/${profile_id}",
             dataType: 'json',
@@ -205,6 +241,7 @@
                     $('#userfollowers').append(
                             $('<div>').addClass('well')
                                     .append($('<div>').addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
+                                    .append($('<div>').addClass("pull-right").text(data[i].email))
                     );
                 }
             }
@@ -243,6 +280,7 @@
 
 
     function loadFollowing(){
+        tabActive = 3;
         $.ajax({
             url: "/following/${profile_id}",
             dataType: 'json',
@@ -252,11 +290,20 @@
                     $('#userfollowing').append(
                             $('<div>').addClass('well')
                                     .append($('<div>').addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
+                                    .append($('<div>').addClass("pull-right").text(data[i].email))
                     );
                 }
             }
         });
     }
+
+    function bindScroll(){
+        if(((window.innerHeight + window.scrollY) >= document.body.offsetHeight && tabActive==1)) {
+            loadTweets();
+        }
+    }
+
+    $(window).scroll(bindScroll);
 </script>
 </body>
 </html>

@@ -35,24 +35,24 @@ public class TweetController {
         this.repository = repository;
     }
 
-    @RequestMapping(value = "/tweets", method = RequestMethod.POST)
+  /*  @RequestMapping(value = "/tweets", method = RequestMethod.POST)
     @ResponseBody
     public String createTweet(@RequestBody final Tweet tweet, HttpServletResponse response){
 
         long id = repository.addTweet(tweet.getUserid(), tweet.getUsername(), tweet.getDetails());
         return "";
-    }
+    }*/
 
+    ////////////check refactoring/////////
     @RequestMapping(value = "/users/tweets/{id}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public List<Tweet> fetchTweets(@PathVariable("id") long userid) {
         return repository.getTweets(userid);
     }
 
-
     @RequestMapping(value = "/homepagetweets", method = RequestMethod.GET)
     @ResponseBody
-    public String showHomePageTweets(@RequestParam(value="tweetid") Long tweetid ,HttpServletRequest request){
+    public String showHomePageTweets(@RequestParam(value="tweetid") Long tweetid ,HttpServletRequest request) {
         Long userid = (Long) request.getSession().getAttribute("userid");
         List<Tweet> tweets = repository.showHomePageTweets(userid, tweetid);
         Gson gson = new Gson();
@@ -60,23 +60,36 @@ public class TweetController {
         return json;
     }
 
-    @RequestMapping(value = "/tweets/{userid}", method = RequestMethod.GET)
+    /*@RequestMapping(value = "/tweets/{userid}", method = RequestMethod.GET)
     @ResponseBody
     public String showUserTweets(@PathVariable("userid") Long userid){
         List<Tweet> tweets = repository.getTweets(userid);
         Gson gson = new Gson();
         String json = gson.toJson(tweets);
         return json;
-    }
+    }*/
 
+    @RequestMapping(value = "/tweets/{userid}/{tweetid}", method = RequestMethod.GET)
+    @ResponseBody
+    public String showUserTweets(@PathVariable("userid") Long userid, @PathVariable("tweetid") Long tweetid){
+        List<Tweet> tweets = repository.getProfileTweets(userid, tweetid);
+        Gson gson = new Gson();
+        String json = gson.toJson(tweets);
+        return json;
+    }
 
     @RequestMapping(value = "/addtweet", method = RequestMethod.POST)
     @ResponseBody
-    public void addTweet(@RequestBody Tweet tweet, HttpServletRequest request) throws Exception {
+    public void addTweet(@RequestBody Tweet tweet, HttpServletRequest request, ModelMap modelMap) throws Exception {
         HttpSession httpSession = request.getSession();
-        Long userid = (Long)httpSession.getAttribute("userid");
-        String username = (String) httpSession.getAttribute("username");
-        long id = repository.addTweet(userid, username, tweet.getDetails());
+        if(tweet.getDetails().length() > 140) {
+            modelMap.addAttribute("msg", "Tweet length should be less than 140 characters");
+        }
+        else {
+            Long userid = (Long)httpSession.getAttribute("userid");
+            String username = (String) httpSession.getAttribute("username");
+            long id = repository.addTweet(userid, username, tweet.getDetails());
+        }
     }
 
     @RequestMapping(value = "/checkNewTweets", method = RequestMethod.GET)
@@ -88,5 +101,14 @@ public class TweetController {
         String json = gson.toJson(tweets);
         return json;
     }
+
+
+    @RequestMapping(value = "/newTweetJedisUpdate", method = RequestMethod.GET)
+    @ResponseBody
+    public void jedisUpdateOnNewTweet(HttpServletRequest request) throws Exception {
+        Long userid = (Long) request.getSession().getAttribute("userid");
+        repository.jedisUpdateOnNewTweet(userid);
+    }
+
 
 }

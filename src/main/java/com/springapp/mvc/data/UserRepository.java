@@ -53,6 +53,7 @@ public class UserRepository {
         param.put("email", email);
         param.put("password", password);
         try{
+            tree.insertWord(tree.root, username);
             return  (Long) insert.executeAndReturnKey(param);
         }
         catch( DuplicateKeyException e){
@@ -67,7 +68,7 @@ public class UserRepository {
     }
 
     public DbUser fetchUserByUsername(String username) {
-        return jdbcTemplate.queryForObject("select users.userid, users.username, users.email from users where username = ?",
+        return jdbcTemplate.queryForObject("select users.userid, users.username, users.email , users.name from users where username = ?",
                 new Object[]{username}, new BeanPropertyRowMapper<>(DbUser.class));
     }
 
@@ -79,13 +80,13 @@ public class UserRepository {
     public List<DbUser> fetchFollowers(long userid) {
         java.util.Date date= new java.util.Date();
         Timestamp timestamp = new Timestamp(date.getTime());
-        return jdbcTemplate.query("select users.userid, users.username from users, followers where followers.userid = ? and users.userid=followers.followerid and timestamp > ?", new Object[]{userid, timestamp}, new BeanPropertyRowMapper<>(DbUser.class));
+        return jdbcTemplate.query("select users.userid, users.username, users.email from users, followers where followers.userid = ? and users.userid=followers.followerid and timestamp > ?", new Object[]{userid, timestamp}, new BeanPropertyRowMapper<>(DbUser.class));
     }
 
     public List<DbUser> fetchFollowing(long followerid) {
         java.util.Date date= new java.util.Date();
         Timestamp timestamp = new Timestamp(date.getTime());
-        return jdbcTemplate.query("select users.userid, users.username from users, followers where followers.followerid = ? and users.userid=followers.userid and timestamp > ?", new Object[]{followerid, timestamp}, new BeanPropertyRowMapper<>(DbUser.class));
+        return jdbcTemplate.query("select users.userid, users.username, users.email from users, followers where followers.followerid = ? and users.userid=followers.userid and timestamp > ?", new Object[]{followerid, timestamp}, new BeanPropertyRowMapper<>(DbUser.class));
     }
 
     public void follow(Long userid, Long followerid) {
@@ -141,8 +142,7 @@ public class UserRepository {
 
     public Long fetchUseridByAccessToken(String token) {
         try {
-            return jdbcTemplate.queryForObject("select userid from useraccesstoken where accesstoken = ?",
-            new Object[]{token}, Long.class);
+            return jdbcTemplate.queryForObject("select userid from useraccesstoken where accesstoken = ?",new Object[]{token}, Long.class);
         }
         catch (Exception e) {
             return null;

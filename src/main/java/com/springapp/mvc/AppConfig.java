@@ -64,9 +64,14 @@ public class AppConfig extends WebMvcConfigurerAdapter{
     }
 
     @Bean
-    public Jedis jedis() {
-        JedisPool jedisPool = new JedisPool(new JedisPoolConfig(), "localhost", 6379);
-        return jedisPool.getResource();
+    public static JedisPool jedisPool(){
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxIdle(5);
+        poolConfig.setMaxActive(50);
+        return new JedisPool(poolConfig,"localhost", 6379);
     }
-
+    @Bean
+    public static Jedis jedis(){
+        return jedisPool().getResource();
+    }
 }
