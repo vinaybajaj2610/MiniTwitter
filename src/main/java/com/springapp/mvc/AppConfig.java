@@ -8,12 +8,15 @@ import org.springframework.context.annotation.Bean;
 import org.postgresql.ds.PGPoolingDataSource;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-        import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
-        import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
 import java.beans.PropertyVetoException;
 
@@ -53,9 +56,17 @@ public class AppConfig extends WebMvcConfigurerAdapter{
         return new PropertySourcesPlaceholderConfigurer();
     }
 
+
     @Override
     public void addInterceptors(InterceptorRegistry registry){
         ApiAuthenticationInterceptor interceptor = new ApiAuthenticationInterceptor(userRepository);
         registry.addInterceptor(interceptor).addPathPatterns( "/api/fetchUserPosts", "/api/fetchUserPosts/**", "/api/createPost", "/api/createPost/**","/api/fetchUsersNewsFeed","/api/fetchUsersNewsFeed/**");
     }
+
+    @Bean
+    public Jedis jedis() {
+        JedisPool jedisPool = new JedisPool(new JedisPoolConfig(), "localhost", 6379);
+        return jedisPool.getResource();
+    }
+
 }

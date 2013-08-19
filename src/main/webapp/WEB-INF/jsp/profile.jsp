@@ -101,6 +101,48 @@
 
 <script>
 
+    function isUrl(s) {
+        var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+        return regexp.test(s);
+    }
+
+    function formTweet(user){
+
+        var arr = user.details.split(" ");
+        var divElement = document.createElement("div");
+        finaldiv = $(divElement).addClass('well').css('margin', '10px')
+                .append($('<div>').addClass("pull-left").append($('<a>').text(user.username).attr("href", "/" + user.username)))
+                .append($('<div>').text(user.timestamp).addClass("pull-right"))
+                .append($('</br>'))
+
+        for (var i = 0; i < arr.length; i++){
+            if (isUrl(arr[i])){
+                finaldiv.append($('<a>').text(arr[i] + " ").attr("href", arr[i]).attr("target", "_blank"));
+            }
+            else if (arr[i][0]=='@'){
+                var tagName = arr[i].substr(1);
+                $.ajax({
+                    url: "/isFollowing?tagName="+tagName,
+                    dataType: 'json',
+                    async: false,
+                    success: function(data){
+                        if (data == 1){
+                            finaldiv.append($('<a>').text("@" + tagName + " ").attr("href", "/" + tagName).attr("target", "_blank"));
+                        }
+                        else
+                        {
+                            finaldiv.append($('<span>').text(arr[i]+ " "));
+                        }
+                    }
+                });
+            }
+            else {
+                finaldiv.append($('<span>').text(arr[i] + " "));
+            }
+        }
+        return finaldiv;
+    }
+
     function loadTweets(){
         $.ajax({
             url: "/tweets/${profile_id}",
@@ -108,10 +150,7 @@
             success: function(data){
                 for(var i=0; i < data.length; i++){
                     $('#tweetfeeds').append(
-                            $('<div>').addClass('well')
-                                    .append($('<div>').text(data[i].details))
-                                    .append($('<div>').text("by: ").addClass("pull-left").append($('<a>').text(data[i].username).attr("href","${profile_username}")))
-                                    .append($('<div>').text(data[i].timestamp).addClass("pull-right"))
+                        formTweet(data[i])
                     );
                 }
             }

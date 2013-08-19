@@ -10,22 +10,50 @@ var tweetid = 0;
 var maxlimit = 140;
 var latestTweetid;
 var freshTweetData;
+var followers;
+var usernames;
 
+
+function isUrl(s) {
+    var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
+    return regexp.test(s);
+}
 
 function formTweet(user){
-    /*var tweetHtml = "<div class='well' style='margin: 10px'>" +
-                        "<div class='pull-left'>" + "<a href=/" + user['username'] + ">" + user['username'] + "</a></div>" +
-                        "<div class='pull-right'>"+ user['timestamp'] + "</div>" +
-                        "<br/><div>"+ user['details'] +"</div>" +
-                     "</div>";
-    console.log(tweetHtml);*/
 
-    return $('<div>').addClass('well').css('margin','10px')
-        .append($('<div>').addClass("pull-left").append($('<a>').text(user.username).attr("href","/"+user.username)))
+    var arr = user.details.split(" ");
+    var divElement = document.createElement("div");
+    finaldiv = $(divElement).addClass('well').css('margin', '10px')
+        .append($('<div>').addClass("pull-left").append($('<a>').text(user.username).attr("href", "/" + user.username)))
         .append($('<div>').text(user.timestamp).addClass("pull-right"))
         .append($('</br>'))
-        .append($('<div>').text(user.details));
 
+    for (var i = 0; i < arr.length; i++){
+        if (isUrl(arr[i])){
+            finaldiv.append($('<a>').text(arr[i] + " ").attr("href", arr[i]).attr("target", "_blank"));
+        }
+        else if (arr[i][0]=='@'){
+            var tagName = arr[i].substr(1);
+            $.ajax({
+                url: "/isFollowing?tagName="+tagName,
+                dataType: 'json',
+                async: false,
+                success: function(data){
+                    if (data == 1){
+                        finaldiv.append($('<a>').text("@" + tagName + " ").attr("href", "/" + tagName).attr("target", "_blank"));
+                    }
+                    else
+                    {
+                        finaldiv.append($('<span>').text(arr[i]+ " "));
+                    }
+                }
+            });
+        }
+        else {
+            finaldiv.append($('<span>').text(arr[i] + " "));
+        }
+    }
+    return finaldiv;
 }
 
 function loadMoreTweets(){
@@ -41,9 +69,24 @@ function loadMoreTweets(){
                 latestTweetid = data[0].tweetid;
 
             for(var i=0; i < data.length; i++){
+                console.log(formTweet(data[i]));
                 $('#tweetfeeds').append(
+
                     formTweet(data[i])
                 );
+            }
+        }
+    });
+}
+
+function loadUsernames(){
+    $.ajax({
+        url: "/loadUsernames",
+        dataType: 'json',
+        success: function(data){
+            for (var i = 0; i < data.length; i++){
+                if (i%5==0) console.log(data[i].username);
+                usernames.push(data[i].username);
             }
         }
     });
@@ -57,6 +100,17 @@ $(document).ready(function(){
     loadMoreTweets();
     $('#tweetButton').attr("disabled",true);
     setInterval(checkNewTweets, 15000);
+});
+
+$(function() {
+    $("#search").autocomplete({ // search is the div id
+        minLength: 1,
+        max : 8,
+        source: "http://localhost:8080" + "/loadUsernames?prefix=" + $('#search').text(), // serverAddress is the path to server
+        select: function(event, user){
+            window.location = "http://localhost:8080/"+user.item.label;
+        }
+    });
 });
 
 function loadFollowers(){

@@ -158,6 +158,30 @@ public class UserController {
         return json;
     }
 
+    @RequestMapping(value = "/isFollowing", method = RequestMethod.GET, produces = "application/json")
+    @ResponseBody
+    public String isFollowing(@RequestParam(value="tagName") String tagName, HttpServletRequest request){
+        Long followerid = (Long) request.getSession().getAttribute("userid");
+        DbUser user =  repository.fetchUserByUsername(tagName);
+        Gson gson = new Gson();
+        if (user != null){
+            String json = "";
+            if(followerid != user.getUserid()) {
+                Integer t = repository.isFollower(user.getUserid(), followerid);
+                if(t.equals(1)){
+                    json = gson.toJson(1);
+                }
+                else
+                    json = gson.toJson(0);
+            }
+            else {
+                json = gson.toJson(0);
+            }
+           return json;
+        }
+        return gson.toJson(0);
+    }
+
     /////////Update profile///////////
     @RequestMapping(value = "/updateProfile", method = RequestMethod.POST)
     public String saveChanges(ModelMap modelMap, HttpServletRequest request) throws Exception {
@@ -193,6 +217,7 @@ public class UserController {
         }
         return "edit";
     }
+
     @RequestMapping(value = "/editProfile", method = RequestMethod.GET)
     public String editProfile(ModelMap modelMap, HttpServletRequest request){
         Long userid = (Long) request.getSession().getAttribute("userid");
@@ -202,4 +227,18 @@ public class UserController {
         return "edit";
     }
     ///////////
+
+
+    // auto complete stuff////////////
+    @RequestMapping(value = "/loadUsernames", method = RequestMethod.GET)
+    @ResponseBody
+    public String loadUsernames(@RequestParam("term") String prefix){
+        List<String> users = repository.loadUsernames(prefix);
+        Gson gson = new Gson();
+        String json = gson.toJson(users);
+        //System.out.println(json);
+        return json;
+    }
+    /////////////////
+
 }

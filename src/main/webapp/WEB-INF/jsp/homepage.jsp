@@ -22,6 +22,12 @@
     <!-- Le styles -->
 
     <style type="text/css">
+        .ui-autocomplete {
+            max-height: 205px;
+            overflow-y: hidden;
+            overflow-x: hidden;
+        }
+
         body {
             padding-top: 60px;
             padding-bottom: 40px;
@@ -46,6 +52,10 @@
     <script src="/static/js/jquery.js"></script>
     <script src="/static/js/bootstrap.js"></script>
     <script src="/static/js/home.js"></script>
+    <link rel="stylesheet" href="/static/css/jquery-ui-1.10.3.custom.min.css" />
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+    <script src="/static/js/bootstrap-typeahead.js"></script>
     <link href="/static/css/bootstrap.css" rel="stylesheet">
     <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
 </head>
@@ -62,16 +72,31 @@
             </button>
             <a class="brand" href="#"><b>MiniTwitter</b></a>
             <div class="nav-collapse collapse">
-                <p class="navbar-text pull-right">
-                    Logged in as <a href="#" class="navbar-link">${username}</a>
-                </p>
+
+                <ul class="nav pull-right" >
+                    <li>
+                        <form id="searchBox" style="margin-bottom: 0; margin-right: 10px">
+                            <input id="search" type="text" class="search-query" style="height:20px;margin-top:4px;">
+                            <div class="icon-search icon-white"></div>
+                        </form>
+                    </li>
+                    <li>
+                        <p class="navbar-text">
+                            Logged in as <a href="#" class="navbar-link">${username}</a>
+                        </p>
+                    </li>
+                    <li><a href="auth/logout">Logout</a></li>
+                </ul>
+                <%--<li><input type="text" id="search" class="search-query"><span class="icon nav-search"></span></li>--%>
                 <ul class="nav">
                     <li class="active"><a href="homepage">Home</a></li>
                     <li><a href="${username}">Profile</a></li>
                     <li><a href="editProfile" class="navbar-link" style="text-align: center;">Edit Profile</a></li>
-                    <li><a href="auth/logout">Logout</a></li>
+
                 </ul>
             </div><!--/.nav-collapse -->
+
+            <%--<input type="text" id="search" class="input-medium search-query">--%>
         </div>
     </div>
 </div>

@@ -1,5 +1,6 @@
 package com.springapp.mvc.data;
 
+import com.springapp.mvc.autocomplete.Trie;
 import com.springapp.mvc.model.DbUser;
 import com.springapp.mvc.model.Tweet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,10 +28,16 @@ import java.util.Map;
 @Repository
 public class UserRepository {
     JdbcTemplate jdbcTemplate;
+    Trie tree;
 
     @Autowired
     public UserRepository(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate = jdbcTemplate;
+        tree = new Trie();
+        List<DbUser> users = this.jdbcTemplate.query("select userid, username from users", new BeanPropertyRowMapper<>(DbUser.class));
+        for (int i = 0; i < users.size(); i++){
+            tree.insertWord(tree.root, users.get(i).getUsername());
+        }
     }
 
 
@@ -170,6 +177,13 @@ public class UserRepository {
 
     public List<DbUser> getPassword(Long userid) {
         return jdbcTemplate.query("select userid, password from users where userid = ?", new Object[]{userid}, new BeanPropertyRowMapper<>(DbUser.class));
+    }
+
+    ///auto complete stuff////////////
+    public List<String> loadUsernames(String prefix) {
+        return tree.getAllPrefixMatches(prefix);
+
+
     }
     //////////////
 
