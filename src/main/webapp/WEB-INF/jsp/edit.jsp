@@ -5,40 +5,53 @@
     <link href="/static/css/bootstrap.css" rel="stylesheet" type="text/css">
     <link href="/static/css/edit.css" rel="stylesheet" type="text/css">
     <link href="/static/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
+    <link rel="SHORTCUT ICON" href="/static/img/logo.jpg"/>
+    <style type="text/css">
+        .ui-autocomplete {
+            max-height: 205px;
+            overflow-y: hidden;
+            overflow-x: hidden;
+        }
+
+        body {
+            padding-top: 60px;
+            padding-bottom: 40px;
+        }
+        .sidebar-nav {
+            padding: 9px 0;
+        }
+
+        .addtweetdetails{
+            width: 97%;
+        }
+
+        @media (max-width: 980px) {
+            /* Enable use of floated navbar text */
+            .navbar-text.pull-right {
+                float: none;
+                padding-left: 5px;
+                padding-right: 5px;
+            }
+        }
+    </style>
+
+
+    <link rel="stylesheet" href="/static/css/jquery-ui-1.10.3.custom.min.css" />
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="/static/js/home.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
     <title>Edit Profile</title>
 
-    <%--<style type="text/css">--%>
-    <%--.bs-docs-sidenav {--%>
-    <%--width: 228px;--%>
-    <%--margin: 30px 0 0;--%>
-    <%--padding: 0;--%>
-    <%--background-color: #fff;--%>
-    <%---webkit-border-radius: 6px;--%>
-    <%---moz-border-radius: 6px;--%>
-    <%--border-radius: 6px;--%>
-    <%---webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, .065);--%>
-    <%---moz-box-shadow: 0 1px 4px rgba(0, 0, 0, .065);--%>
-    <%--box-shadow: 0 1px 4px rgba(0, 0, 0, .065);--%>
-    <%--}--%>
-
-    <%--&lt;%&ndash;.list-link{padding-top:12px;padding-bottom:12px;border-bottom:0}&ndash;%&gt;--%>
-    <%--</style>--%>
 
 </head>
 <body background="/static/img/home-bg.jpg" style="background-repeat:no-repeat; background-attachment: fixed">
-
-<div class="row">
-    <%--<div class="span3 offset1">--%>
-    <%--<ul class="nav nav-tabs bs-docs-sidenav affix">--%>
-    <%--<li class="active"><a href="#editInfo"><i class="icon-chevron-right"></i> Edit Details</a></li>--%>
-    <%--<li class=""><a href="#uploadImage"><i class="icon-chevron-right"></i> Upload Image</a></li>--%>
-    <%--</ul>--%>
-    <%--</div>--%>
-
-    <div class="span4 offset5">
-        <div class="tab-content">
+<%@include file="header.jsp" %>
+<div class="container">
+    <div class="span8">
+        <div class="span4"> </div>
+        <div class="tab-content" >
             <div class="tab-pane active" id="editInfo">
-                <div class="well">
+                <div class="well" style="margin-top: 50px">
                     <form id="edit" class="form-vertical" method="post" action="updateProfile">
                         <legend>Edit your profile</legend>
 

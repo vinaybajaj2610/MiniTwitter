@@ -92,13 +92,23 @@ public class TweetController {
         }
     }
 
-    @RequestMapping(value = "/checkNewTweets", method = RequestMethod.GET)
+    @RequestMapping(value = "/fetchNewTweets", method = RequestMethod.GET)
     @ResponseBody
-    public String checkNewTweets(@RequestParam(value="tweetid") Long tweetid ,HttpServletRequest request){
+    public String fetchNewTweets(@RequestParam(value="tweetid") Long tweetid ,HttpServletRequest request){
         Long userid = (Long) request.getSession().getAttribute("userid");
-        List<Tweet> tweets = repository.checkNewFreshTweets(userid, tweetid);
+        List<Tweet> tweets = repository.fetchNewFreshTweets(userid, tweetid);
         Gson gson = new Gson();
         String json = gson.toJson(tweets);
+        return json;
+    }
+
+    @RequestMapping(value = "/checkNewTweets", method = RequestMethod.GET)
+    @ResponseBody
+    public String checkNewTweets(HttpServletRequest request){
+        Long userid = (Long) request.getSession().getAttribute("userid");
+        Integer newTweetCount= Integer.parseInt(repository.getNewTweetsCount(userid));
+        Gson gson = new Gson();
+        String json = gson.toJson(newTweetCount);
         return json;
     }
 
@@ -109,6 +119,14 @@ public class TweetController {
         Long userid = (Long) request.getSession().getAttribute("userid");
         repository.jedisUpdateOnNewTweet(userid);
     }
+
+   /* @RequestMapping(value = "/jedisUpdateCountZero", method = RequestMethod.GET)
+    @ResponseBody
+    public void jedisUpdateCountZero(HttpServletRequest request) throws Exception {
+        Long userid = (Long) request.getSession().getAttribute("userid");
+        repository.jedisUpdateCountZero(userid);
+    }
+*/
 
 
 }

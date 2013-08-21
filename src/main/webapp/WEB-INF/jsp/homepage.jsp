@@ -14,11 +14,11 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Twitter</title>
+    <title>MiniTwitter</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-
+    <link rel="SHORTCUT ICON" href="/static/img/logo.jpg"/>
     <!-- Le styles -->
 
     <style type="text/css">
@@ -55,49 +55,13 @@
     <link rel="stylesheet" href="/static/css/jquery-ui-1.10.3.custom.min.css" />
     <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
     <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
-    <script src="/static/js/bootstrap-typeahead.js"></script>
     <link href="/static/css/bootstrap.css" rel="stylesheet">
     <link href="/static/css/bootstrap-responsive.css" rel="stylesheet">
 </head>
 
 <body background="/static/img/home-bg.jpg" style="background-repeat:no-repeat; background-attachment: fixed" >
 
-<div class="navbar navbar-inverse navbar-fixed-top">
-    <div class="navbar-inner">
-        <div class="container-fluid">
-            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="brand" href="#"><b>MiniTwitter</b></a>
-            <div class="nav-collapse collapse">
-
-                <ul class="nav pull-right" >
-                    <li>
-                        <form id="searchBox" style="margin-bottom: 0; margin-right: 10px">
-
-                            <input id="search" type="text" class="search-query" style="height:20px;margin-top:4px;" placeholder="Search Username">
-                            <div class="icon-search icon-white" style="margin-top: 4px"></div>
-                        </form>
-                    </li>
-                    <li>
-                        <p class="navbar-text">
-                            Logged in as <a href="#" class="navbar-link">${username}</a>
-                        </p>
-                    </li>
-                    <li><a href="auth/logout">Logout</a></li>
-                </ul>
-                <ul class="nav">
-                    <li class="active"><a href="homepage">Home</a></li>
-                    <li><a href="${username}">Profile</a></li>
-                    <li><a href="editProfile" class="navbar-link" style="text-align: center;">Edit Profile</a></li>
-
-                </ul>
-            </div><!--/.nav-collapse -->
-        </div>
-    </div>
-</div>
+<%@include file="header.jsp" %>
 
 <div class="container-fluid">
     <div class="row-fluid">
@@ -115,11 +79,7 @@
                         <div>${msg}</div>
                     </div>
 
-                    <br>Please upload a file
-                    <form method="post" action="saveImage" enctype="multipart/form-data">
-                        <input type="file" name="file"/>
-                        <input type="submit" value="Upload Image"/>
-                    </form>
+
                 </div>
                 <div class="span7">
                     <ul class="nav nav-tabs" id="myTab">

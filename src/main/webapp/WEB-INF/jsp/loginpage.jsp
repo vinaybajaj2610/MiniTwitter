@@ -11,7 +11,8 @@
     <link href="/static/css/login.css" rel="stylesheet" type="text/css">
     <link href="/static/css/bootstrap.css" rel="stylesheet" type="text/css">
     <link href="/static/css/bootstrap-responsive.css" rel="stylesheet" type="text/css">
-    <title>Twitter </title>
+    <link rel="SHORTCUT ICON" href="/static/img/logo.jpg"/>
+    <title>MiniTwitter </title>
 </head>
 
 <body background="/static/img/login-bg.jpg">

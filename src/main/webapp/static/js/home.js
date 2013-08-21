@@ -18,12 +18,17 @@ function isUrl(s) {
     var regexp = /(ftp|http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/
     return regexp.test(s);
 }
+/*
+<img border="0" src="http://localhost/images/${userid}.jpg" onError="this.src = 'http://localhost/images/default.jpg'"
+alt="Profile Pic" class="img-rounded" style="height:40px; width:40px; float:left">*/
 
 function formTweet(user){
 
     var arr = user.details.split(" ");
     var divElement = document.createElement("div");
     finaldiv = $(divElement).addClass('well').css('margin', '10px')
+        .append($('<img>').addClass("img-circle").css("float","left").css("height","50px").css("width","50px").css("margin-right","10px")
+            .attr("src","http://localhost/images/" + user.userid +".jpg").attr("onError","this.src = 'http://localhost/images/default.jpg'"))
         .append($('<div>').addClass("pull-left").append($('<a>').text(user.username).attr("href", "/" + user.username)))
         .append($('<div>').text(user.timestamp).addClass("pull-right"))
         .append($('</br>'))
@@ -200,31 +205,44 @@ $(window).scroll(bindScroll);
 
 function notifyUserForNewTweets(data) {
 
-    if (data.length > 0){
-        freshTweetData = $.merge(data,freshTweetData);
-        $('#newTweetCount').remove();
-        $('#tweetfeeds').prepend("<div style='text-align: center; font: bold; color: #ffffff' id='newTweetCount' onclick='loadFreshTweets()'>" + freshTweetData.length + " new tweets" + "</div>");
-        latestTweetid = freshTweetData[0].tweetid;
-    }
+    $('#newTweetCount').remove();
+    $('#tweetfeeds').prepend("<div style='text-align: center; font: bold; color: #ffffff' id='newTweetCount' onclick='loadFreshTweets()'>" + data + " new tweets" + "</div>");
 }
 
 function loadFreshTweets(){
 
     $('#newTweetCount').remove();
-    for(var i=freshTweetData.length-1; i >= 0; i--){
-        $('#tweetfeeds').prepend(
-            formTweet(freshTweetData[i])
-        );
-    }
-    freshTweetData = [];
 
+    $.ajax({
+        url: "/fetchNewTweets?tweetid="+latestTweetid,
+        dataType: 'json',
+        success: function(data){
+            for(var i=data.length-1; i >= 0; i--){
+                $('#tweetfeeds').prepend(
+                    formTweet(data[i])
+                );
+            }
+            latestTweetid = data[0].tweetid;
+            //jedisUpdateCountZero();
+        }
+    });
+}
+
+function jedisUpdateCountZero(){
+    $.ajax({
+        url: "/jedisUpdateCountZero",
+        dataType: 'json',
+        success: function(){
+        }
+    });
 }
 function checkNewTweets() {
     $.ajax({
-        url: "/checkNewTweets?tweetid="+latestTweetid,
+        url: "/checkNewTweets",
         dataType: 'json',
         success: function(data){
-            notifyUserForNewTweets(data);
+            if(data > 0)
+                notifyUserForNewTweets(data);
         }
     });
 

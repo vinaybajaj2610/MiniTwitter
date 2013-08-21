@@ -81,7 +81,6 @@ public class UserController {
     }
 
     @RequestMapping(value = "/saveImage", method = RequestMethod.POST)
-    @ResponseBody
     public String handleUpload(
             @RequestParam(value = "file", required = false) MultipartFile multipartFile,
             HttpServletRequest request) {
@@ -94,14 +93,11 @@ public class UserController {
             multipartFile.transferTo(dest);
         } catch (IllegalStateException e) {
             e.printStackTrace();
-            return "File uploaded failed:" + orgName;
         } catch (IOException e) {
             e.printStackTrace();
-            return "File uploaded failed:" + orgName;
         }
-        return "File uploaded:" + orgName;
+        return "homepage";
     }
-
     @RequestMapping(value = "/followers", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public String fetchFollowers(HttpServletRequest request){

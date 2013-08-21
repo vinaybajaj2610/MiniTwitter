@@ -4,10 +4,12 @@ package com.springapp.mvc;
 import com.springapp.mvc.data.UserRepository;
 import com.springapp.mvc.interceptors.ApiAuthenticationInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.postgresql.ds.PGPoolingDataSource;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -30,7 +32,7 @@ import java.beans.PropertyVetoException;
 
 @Configuration
 @ComponentScan(basePackages = "com.springapp.mvc")
-//@PropertySource(value = "classpath:/application.properties")
+@PropertySource(value = "classpath:/application.properties")
 @EnableWebMvc
 @EnableTransactionManagement
 public class AppConfig extends WebMvcConfigurerAdapter{
@@ -39,15 +41,24 @@ public class AppConfig extends WebMvcConfigurerAdapter{
     private UserRepository userRepository;
 
     @Bean
-    public static JdbcTemplate jdbcTemplate() throws PropertyVetoException {
+    public static JdbcTemplate jdbcTemplate(@Value("${db.serverName}") String serverName,
+                                            @Value("${db.portNumber}") String portNumber,
+                                            @Value("${db.databaseName}") String databaseName,
+                                            @Value("${db.maxConnections}") String maxConnections,
+                                            @Value("${db.user}") String username,
+                                            @Value("${db.password}") String password,
+                                            @Value("${jedis.maxIdle}") String maxIdle,
+                                            @Value("${jedis.maxActive}") String maxActive,
+                                            @Value("${jedis.PortNumber}") String jedisPort,
+                                            @Value("${jedis.serverAddress}") String jedisServerAddress ) throws PropertyVetoException {
 
         PGPoolingDataSource source = new PGPoolingDataSource();
-        source.setServerName("localhost");
-        source.setPortNumber(5432);
-        source.setDatabaseName("twitter");
-        source.setUser("postgres");
-        source.setPassword("postgres");
-        source.setMaxConnections(10);
+        source.setServerName(serverName);
+        source.setPortNumber(Integer.parseInt(portNumber));
+        source.setDatabaseName(databaseName);
+        source.setUser(username);
+        source.setPassword(password);
+        source.setMaxConnections(Integer.parseInt(maxConnections));
         return new JdbcTemplate(source);
     }
 
