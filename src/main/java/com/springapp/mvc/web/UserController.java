@@ -63,8 +63,7 @@ public class UserController {
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
-    @ResponseBody
-    public String CreateUser(@ModelAttribute("user") DbUser user, BindingResult result, HttpServletResponse response) throws Exception {
+    public String CreateUser(@ModelAttribute("user") DbUser user, ModelMap modelMap, BindingResult result, HttpServletResponse response) throws Exception {
         if (result.hasErrors()){
             System.out.println("Error in binding!!");
         }
@@ -73,18 +72,20 @@ public class UserController {
 
         if (id != -1){
             response.setStatus(201);
-            response.setHeader("Location", "http://localhost:8080/users/"+ id);
+            modelMap.addAttribute("msg", "Successfuly registered. You can now login!");
         } else {
             response.setStatus(409);
+            String error = "<font color=\"red\">" + "username " + user.getUsername() + " has already been taken. Choose a different username." + "</font>";
+            modelMap.addAttribute("errormsg", error);
         }
-        return "you are successfully Registered!!";
+        return "loginpage";
     }
 
     @RequestMapping(value = "/saveImage", method = RequestMethod.POST)
     public String handleUpload(
             @RequestParam(value = "file", required = false) MultipartFile multipartFile,
-            HttpServletRequest request) {
-
+            HttpServletRequest request, ModelMap modelMap) {
+        DbUser user =  repository.fetchUserByUsername((String) request.getSession().getAttribute("username"));
         String orgName = multipartFile.getOriginalFilename();
 
         String filePath = "/home/vinay/Downloads/twimages/" + request.getSession().getAttribute("userid") + ".jpg";
@@ -96,8 +97,13 @@ public class UserController {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return "homepage";
+        modelMap.addAttribute("profile_id",user.getUserid());
+        modelMap.addAttribute("profile_name", user.getName());
+        modelMap.addAttribute("profile_username", user.getUsername());
+
+        return "profile";
     }
+
     @RequestMapping(value = "/followers", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public String fetchFollowers(HttpServletRequest request){
@@ -112,7 +118,6 @@ public class UserController {
     @RequestMapping(value = "/followers/{userid}", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public String fetchFollowers(@PathVariable("userid") Long userid){
-//        Long userid = (Long) request.getSession().getAttribute("userid");
         List<DbUser> users = repository.fetchFollowers(userid);
         Gson gson = new Gson();
         String json = gson.toJson(users);
@@ -172,10 +177,11 @@ public class UserController {
         Long followerid = (Long) request.getSession().getAttribute("userid");
         Gson gson = new Gson();
         String json;
-        if(followerid != userid) {
+        if(!followerid.equals(userid)) {
             json = gson.toJson(repository.isFollower(userid, followerid));
         }
         else {
+            System.out.println("own profile page");
             json = gson.toJson(2);
         }
         return json;
@@ -185,6 +191,7 @@ public class UserController {
     @ResponseBody
     public String isFollowing(@RequestParam(value="tagName") String tagName, HttpServletRequest request){
         Long followerid = (Long) request.getSession().getAttribute("userid");
+
         DbUser user =  repository.fetchUserByUsername(tagName);
         Gson gson = new Gson();
         if (user != null){
@@ -231,10 +238,12 @@ public class UserController {
             modelMap.addAttribute("msg", "The new passwords do not match");
         }
         else if(newPassword==null || newPassword.equals("")) {
+            request.getSession().setAttribute("name",name);
             repository.updateUser(userid, name, email);
             modelMap.addAttribute("msg", "The changes have been made");
         }
         else {
+            request.getSession().setAttribute("name",name);
             repository.updateUser(userid, name, email, Md5Encryption.encryptUsingMd5(newPassword));
             modelMap.addAttribute("msg", "The changes have been made");
         }

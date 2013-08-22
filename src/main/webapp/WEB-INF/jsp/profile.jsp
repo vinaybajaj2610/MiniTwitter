@@ -61,24 +61,28 @@
                 <div class="span3">
                     <div class="well">
                         <div><font size="5"><b>
-                            ${profile_username}'s Profile Page</b></font>
+                            ${profile_username}'s Profile</b></font>
                         </div>
                         <br>
                         <div><img border="0" src="http://localhost/images/${profile_id}.jpg" onError="this.src = 'http://localhost/images/default.jpg'"
                                   alt="Profile Pic" class="img-polaroid" style="width: 300px;height: 300px;margin-bottom: 10px">
                         </div>
                         <div>
+                            <c:if test="${userid == profile_id}">
                             <button class="btn btn-primary" style="margin-right: 5px" onclick="editProfile()">Edit Profile</button>
+                            </c:if>
                             <button id="followed" onclick="follow()" class="btn btn-primary">follow</button>
                             <button id="unfollowed" onmouseover="changeBtnNametounfollow()" onmouseout="changeBtnNametofollowing()" onclick="unfollow()" class="btn btn-primary">following</button>
                         </div>
                         <div>
                         <br>
+                            <c:if test="${userid == profile_id}">
                         <span>Change Profile Picture:</span>
                         <form method="post" action="saveImage" enctype="multipart/form-data">
                             <input type="file" name="file"/>
                             <input class="btn btn-inverse" type="submit" value="Upload Image"/>
                         </form>
+                            </c:if>
                         </div>
                     </div>
 

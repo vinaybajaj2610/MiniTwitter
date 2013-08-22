@@ -57,7 +57,7 @@
 
                         <div class="control-group">
                             <div class="controls">
-                                Old Password:
+                                Old Password:*
                                 <div class="input-prepend">
                                     <input type="Password" class="input-xlarge" id="oldPassword" name="oldPassword"
                                            placeholder="Old Password">
@@ -109,14 +109,10 @@
                             </div>
                         </div>
                     </form>
-                    <div id="message">${msg}</div>
+                    <div id="message"><font color="red">${msg}</font></div>
                 </div>
             </div>
-            <%--<div class="tab-pane" id="uploadImage">--%>
-            <%--<div class = "well">--%>
-            <%--jhbhj--%>
-            <%--</div>--%>
-            <%--</div>--%>
+
         </div>
     </div>
 </div>

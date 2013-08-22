@@ -1,5 +1,6 @@
 package com.springapp.mvc.apicontroller;
 
+import com.google.gson.Gson;
 import com.springapp.mvc.data.TweetRepository;
 import com.springapp.mvc.data.UserRepository;
 import com.springapp.mvc.model.DbUser;
@@ -72,8 +73,10 @@ public class apiUserController {
         Map<String, Object> map = userRepository.fetchUseridByRequestToken(reqToken);
         String accessToken = (String) map.get("accesstoken");
         Long userid = (Long) map.get("userid");
-        userRepository.AddAccessTokenInUserAccessTable(userid, accessToken);
-        return accessToken;
+        int ret = userRepository.AddAccessTokenInUserAccessTable(userid, accessToken);
+        if (ret == 1)
+            return accessToken;
+        else return "Access token already Given for this request token";
     }
 
     @RequestMapping(value = "/api/fetchUsersNewsFeed", method = RequestMethod.POST)
@@ -85,16 +88,32 @@ public class apiUserController {
 
     @RequestMapping(value = "/api/fetchFollowers", method = RequestMethod.POST)
     @ResponseBody
-    public List<DbUser> fetchFollowers(@RequestParam("username") String username) {
+    public String fetchFollowers(@RequestParam("username") String username) {
         DbUser user = userRepository.fetchUser(username);
-        return userRepository.fetchFollowers(user.getUserid());
+        Gson gson = new Gson();
+        String json;
+        if (user.getUserid()!=null){
+            List<DbUser> users=  userRepository.fetchFollowers(user.getUserid());
+            json = gson.toJson(users);
+            return json;
+        }
+        json = gson.toJson("Username is not valid");
+        return json;
     }
 
     @RequestMapping(value = "/api/fetchFollowing", method = RequestMethod.POST)
     @ResponseBody
-    public List<DbUser> fetchFollowing(@RequestParam("username") String username) {
+    public String fetchFollowing(@RequestParam("username") String username) {
         DbUser follower = userRepository.fetchUser(username);
-        return userRepository.fetchFollowing(follower.getUserid());
+        Gson gson = new Gson();
+        String json;
+        if (follower.getUserid()!=null){
+            List<DbUser> users=  userRepository.fetchFollowing(follower.getUserid());
+            json = gson.toJson(users);
+            return json;
+        }
+        json = gson.toJson("Username is not valid");
+        return json;
     }
 
 }

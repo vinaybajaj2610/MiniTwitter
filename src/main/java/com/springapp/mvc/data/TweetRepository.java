@@ -75,10 +75,10 @@ public class TweetRepository {
         jedis.set(cacheKey, "0");
         List<Tweet> tweets;
         if(tweetid.equals((Long.valueOf(0)))) {
-            tweets = jdbcTemplate.query("SELECT * FROM tweets WHERE userid=? order by tweetid desc limit 15", new Object[]{userid}, new BeanPropertyRowMapper<Tweet>(Tweet.class));
+            tweets = jdbcTemplate.query("SELECT * FROM profiletweets(?)", new Object[]{userid}, new BeanPropertyRowMapper<Tweet>(Tweet.class));
         }
         else {
-            tweets =  jdbcTemplate.query("SELECT * FROM tweets WHERE userid=? and tweetid < ? order by tweetid desc limit 15", new Object[]{userid, tweetid}, new BeanPropertyRowMapper<Tweet>(Tweet.class));
+            tweets =  jdbcTemplate.query("SELECT * FROM profiletweets(?, ?)", new Object[]{userid, tweetid}, new BeanPropertyRowMapper<Tweet>(Tweet.class));
         }
         for(Tweet tweet : tweets) {
             String val = gson.toJson(tweet);
@@ -93,10 +93,9 @@ public class TweetRepository {
     public List<Tweet> showHomePageTweets(long userid, Long tweetid) {
         String cacheKey = userid + "newHomeTweetCount";
         String key = "showHomePageTweets#" + userid + "#" + tweetid;
-
+        System.out.println(key + " on home page ");
         Gson gson = new Gson();
         if(jedis.exists(key) && (!jedis.exists(cacheKey) || jedis.get(cacheKey).equals("0"))) {
-            System.out.println("cacheing working ... Tweets cached");
             List<Tweet> tweets = new ArrayList<>();
             long length = jedis.llen(key);
             System.out.println(length);
@@ -110,10 +109,10 @@ public class TweetRepository {
         List<Tweet> tweets;
         if(tweetid.equals(Long.valueOf(0)))
         {
-            tweets = jdbcTemplate.query("select tweets.userid, tweets.username, tweets.timestamp, tweets.details, tweets.tweetid from tweets, followers where followers.followerid = ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.tweetid desc limit 15 /*offset ?*/", new Object[]{userid}, new BeanPropertyRowMapper<>(Tweet.class));
+            tweets = jdbcTemplate.query("select * from homepagetweets(?)", new Object[]{userid}, new BeanPropertyRowMapper<>(Tweet.class));
         }
         else {
-            tweets = jdbcTemplate.query("select tweets.userid, tweets.username, tweets.timestamp, tweets.details, tweets.tweetid from tweets, followers where followers.followerid = ? and tweets.tweetid < ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.tweetid desc limit 10/*offset ?*/", new Object[]{userid, tweetid}, new BeanPropertyRowMapper<>(Tweet.class));
+            tweets = jdbcTemplate.query("select * from homepagetweets(?,?)", new Object[]{userid, tweetid}, new BeanPropertyRowMapper<>(Tweet.class));
         }
 
         for(Tweet tweet : tweets) {
@@ -123,14 +122,17 @@ public class TweetRepository {
         return tweets;
     }
 
-   /* public void jedisUpdateCountZero(Long userid) {
+    public void jedisUpdateCountZero(Long userid) {
         String cacheKey = userid + "newHomeTweetCount";
         jedis.set(cacheKey, "0");
-    }*/
+        String key = "showHomePageTweets#" + userid + "#" + 0;
+        jedis.del(key);
+    }
 
     public List<Tweet> fetchNewFreshTweets(Long userid, Long tweetid) {
         // panga new tweets fetch hui then update cache
-        List<Tweet> tweets = jdbcTemplate.query("select tweets.userid, tweets.username, tweets.timestamp, tweets.details, tweets.tweetid from tweets, followers where followers.followerid = ? and tweets.tweetid > ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.tweetid desc", new Object[]{userid, tweetid}, new BeanPropertyRowMapper<>(Tweet.class));
+        //List<Tweet> tweets = jdbcTemplate.query("select tweets.userid, tweets.username, tweets.timestamp, tweets.details, tweets.tweetid from tweets, followers where followers.followerid = ? and tweets.tweetid > ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp order by tweets.tweetid desc", new Object[]{userid, tweetid}, new BeanPropertyRowMapper<>(Tweet.class));
+        List<Tweet> tweets = jdbcTemplate.query("select * from (select tweets.userid, tweets.username, tweets.timestamp, tweets.details, tweets.tweetid from tweets, followers where followers.followerid = ? and tweets.tweetid > ? and tweets.userid=followers.userid and tweets.timestamp < followers.timestamp union select tweets.userid, tweets.username, tweets.timestamp, tweets.details, tweets.tweetid from tweets where tweets.userid = ? and tweets.tweetid > ?) as x order by x.tweetid desc", new Object[]{userid, tweetid, userid, tweetid}, new BeanPropertyRowMapper<>(Tweet.class));
         String key = "showHomePageTweets#" + userid + "#" + 0;
         //String profileKey = "showHomePageTweets#" + userid + "#" + 0;
         jedis.del(key);

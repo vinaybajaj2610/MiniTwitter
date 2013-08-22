@@ -120,13 +120,12 @@ public class TweetController {
         repository.jedisUpdateOnNewTweet(userid);
     }
 
-   /* @RequestMapping(value = "/jedisUpdateCountZero", method = RequestMethod.GET)
+    @RequestMapping(value = "/jedisUpdateCountZero", method = RequestMethod.GET)
     @ResponseBody
     public void jedisUpdateCountZero(HttpServletRequest request) throws Exception {
         Long userid = (Long) request.getSession().getAttribute("userid");
         repository.jedisUpdateCountZero(userid);
     }
-*/
 
 
 }

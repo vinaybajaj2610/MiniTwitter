@@ -68,7 +68,6 @@ function loadMoreTweets(){
         dataType: 'json',
         success: function(data){
             tweetid = data[data.length-1].tweetid;
-            console.log(tweetid);
 
             if (data.length > 0 && data[0].tweetid > latestTweetid)
                 latestTweetid = data[0].tweetid;
@@ -85,6 +84,9 @@ function loadMoreTweets(){
 }
 
 function updateTab() {
+    if (document.getElementById('newTweetCount')){
+        loadFreshTweets();
+    }
     tabActive = 1;
 }
 
@@ -96,12 +98,12 @@ $(document).ready(function(){
     $('#cntfield').html('140');
     loadMoreTweets();
     $('#tweetButton').attr("disabled",true);
-    setInterval(checkNewTweets, 15000);
+    setInterval(checkNewTweets, 5000);
 });
 
 $(function() {
     $("#search").autocomplete({ // search is the div id
-        minLength: 1,
+        minLength: 2,
         max : 8,
         source: "http://localhost:8080" + "/loadUsernames?prefix=" + $('#search').text(), // serverAddress is the path to server
         select: function(event, user){
@@ -119,7 +121,7 @@ function loadFollowers(){
             $('#userfollowers').empty();
             for(var i=0; i < data.length; i++){
                 $('#userfollowers').append(
-                    $('<div>').addClass('well')
+                    $('<div>').addClass('well').css('margin', '10px')
                         .append($('<div>').addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
                         .append($('<div>').addClass("pull-right").text(data[i].email))
 
@@ -139,7 +141,7 @@ function loadFollowing(){
             $('#userfollowing').empty();
             for(var i=0; i < data.length; i++){
                 $('#userfollowing').append(
-                    $('<div>').addClass('well')
+                    $('<div>').addClass('well').css('margin', '10px')
                         .append($('<div>').addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
                         .append($('<div>').addClass("pull-right").text(data[i].email))
 
@@ -157,9 +159,10 @@ function addTweet(){
             data:JSON.stringify({details:$('#tweettext').val()}),
             contentType:"application/json",
             success:function(){
-                alert("New tweet added!!");
+
                 $('#tweettext').val('');
                 $('#cntfield').html('140');
+                loadFreshTweets();
                 updateJedis();
             },
             error: function(){
@@ -223,7 +226,7 @@ function loadFreshTweets(){
                 );
             }
             latestTweetid = data[0].tweetid;
-            //jedisUpdateCountZero();
+            jedisUpdateCountZero();
         }
     });
 }

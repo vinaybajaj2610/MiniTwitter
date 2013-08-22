@@ -83,7 +83,7 @@
                 </div>
                 <div class="span7">
                     <ul class="nav nav-tabs" id="myTab">
-                        <li class="active"><a data-toggle="tab" onclick="updateTab()" href="#tweetfeeds"><b>Tweets</b></a></li>
+                        <li class="active"><a data-toggle="tab" onclick="updateTab()" href="#tweetfeeds"><b>News Feed</b></a></li>
                         <li><a data-toggle="tab" onclick="loadFollowers()" href="#userfollowers"><b>Followers</b></a></li>
                         <li><a data-toggle="tab" onclick="loadFollowing()" href="#userfollowing"><b>Following</b></a></li>
                     </ul>

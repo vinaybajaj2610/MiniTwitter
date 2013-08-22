@@ -10,6 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.bind.DatatypeConverter;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 
 
@@ -27,11 +28,15 @@ public class ApiAuthenticationInterceptor implements HandlerInterceptor{
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object o) throws Exception {
-        System.out.println("aaa gaya");
         String token = request.getHeader("accessToken");
         Long userid = repository.fetchUseridByAccessToken(token);
         if (userid == null){
             System.out.println("No such token found");
+            response.setContentType("application/json");
+            byte[] message = "Failed in preHandle, wrong access token".getBytes();
+            OutputStream out = response.getOutputStream();
+            out.write(message);
+            out.close();
             return false;  //To change body of implemented methods use File | Settings | File Templates.
         }
         return true;

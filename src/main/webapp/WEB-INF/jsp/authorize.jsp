@@ -29,7 +29,7 @@
                 <div class="control-group">
                     <div class="controls">
                         <div class="input-prepend">
-                            <input type="text" id="reqtoken" name="requestToken" value=${reqToken}>
+                            <input type="hidden" id="reqtoken" name="requestToken" value=${reqToken}>
                         </div>
                     </div>
                 </div>

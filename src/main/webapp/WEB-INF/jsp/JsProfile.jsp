@@ -1,7 +1,7 @@
 <script>
     var tweetid = 0;
     var tabActive =1;
-    var serverAddress ="http://localhost:8080";
+    var serverAddress ="http://localhost:8080/";
 
     function editProfile(){
         window.location = serverAddress + "/editProfile";
@@ -9,11 +9,11 @@
 
     $(function() {
         $("#search").autocomplete({ // search is the div id
-            minLength: 1,
+            minLength: 2,
             max : 8,
             source: "http://localhost:8080" + "/loadUsernames?prefix=" + $('#search').text(), // serverAddress is the path to server
             select: function(event, user){
-                window.location = "http://localhost:8080/"+user.item.label;
+                window.location = serverAddress + user.item.label;
             }
         });
     });
@@ -62,19 +62,6 @@
         return finaldiv;
     }
 
-    /*function loadTweets(){
-     $.ajax({
-     url: "/tweets/${profile_id}",
-     dataType: 'json',
-     success: function(data){
-     for(var i=0; i < data.length; i++){
-     $('#tweetfeeds').append(
-     formTweet(data[i])
-     );
-     }
-     }
-     });
-     }*/
 
     function loadTweets(){
         $.ajax({
@@ -100,6 +87,7 @@
             url: "/checkfollow/${profile_id}",
             dataType: 'json',
             success: function(data){
+                console.log("id=" + data);
                 if(data == 0) {
                     $('#unfollowed').hide();
                 }
@@ -118,7 +106,6 @@
         if(flag == "unfollow") {
             $('#unfollowed').hide();
             $('#followed').show();
-
         }
         else {
             $('#unfollowed').show();
@@ -142,7 +129,7 @@
                 $('#userfollowers').empty();
                 for(var i=0; i < data.length; i++){
                     $('#userfollowers').append(
-                            $('<div>').addClass('well')
+                            $('<div>').addClass('well').css('margin', '10px')
                                     .append($('<div>').addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
                                     .append($('<div>').addClass("pull-right").text(data[i].email))
                     );
@@ -191,7 +178,7 @@
                 $('#userfollowing').empty();
                 for(var i=0; i < data.length; i++){
                     $('#userfollowing').append(
-                            $('<div>').addClass('well')
+                            $('<div>').addClass('well').css('margin', '10px')
                                     .append($('<div>').addClass("pull-left").append($('<a>').text(data[i].username).attr("href","/"+data[i].username)))
                                     .append($('<div>').addClass("pull-right").text(data[i].email))
                     );

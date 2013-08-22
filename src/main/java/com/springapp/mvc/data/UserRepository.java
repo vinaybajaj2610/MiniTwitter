@@ -4,12 +4,14 @@ import com.springapp.mvc.autocomplete.Trie;
 import com.springapp.mvc.model.DbUser;
 import com.springapp.mvc.model.Tweet;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.springapp.mvc.service.RepoCacheManager;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import redis.clients.jedis.Jedis;
 
 import java.sql.Timestamp;
 import java.util.Arrays;
@@ -28,16 +30,24 @@ import java.util.Map;
 @Repository
 public class UserRepository {
     JdbcTemplate jdbcTemplate;
+    RepoCacheManager cacheManager;
+    Jedis jedis;
     Trie tree;
 
     @Autowired
-    public UserRepository(JdbcTemplate jdbcTemplate){
+    public UserRepository(JdbcTemplate jdbcTemplate, Jedis jedis){
         this.jdbcTemplate = jdbcTemplate;
         tree = new Trie();
-        List<DbUser> users = this.jdbcTemplate.query("select userid, username from users", new BeanPropertyRowMapper<>(DbUser.class));
+        this.jedis = jedis;
+        List<DbUser> users = this.jdbcTemplate.query("select * from triedata()", new BeanPropertyRowMapper<>(DbUser.class));
         for (int i = 0; i < users.size(); i++){
             tree.insertWord(tree.root, users.get(i).getUsername());
         }
+    }
+
+    @Autowired
+    public void setCacheManager(RepoCacheManager cacheManager) {
+        this.cacheManager = cacheManager;
     }
 
 
@@ -63,32 +73,58 @@ public class UserRepository {
     }
 
     public DbUser fetchUser(String username) {
-        return jdbcTemplate.queryForObject("select * from users where username = ?",
+        try{
+        return jdbcTemplate.queryForObject("select * from fetchuser(?)",
                 new Object[]{username}, new BeanPropertyRowMapper<>(DbUser.class));
+        }
+        catch (Exception e){
+            //System.out.println(e.getMessage());
+             return null;
+        }
     }
 
     public DbUser fetchUserByUsername(String username) {
-        return jdbcTemplate.queryForObject("select users.userid, users.username, users.email , users.name from users where username = ?",
+        try {
+            return jdbcTemplate.queryForObject("select * from fetch_user_by_username (?)",
                 new Object[]{username}, new BeanPropertyRowMapper<>(DbUser.class));
+        } catch (Exception e) {
+           // System.out.println(e.getMessage());
+            return null;
+        }
     }
 
     public DbUser fetchUserByUserid(Long userid) {
-        return jdbcTemplate.queryForObject("select users.userid, users.name, users.email from users where userid = ?",
+        return jdbcTemplate.queryForObject("select * from fetch_user_by_userid(?)",
                 new Object[]{userid}, new BeanPropertyRowMapper<>(DbUser.class));
     }
 
     public List<DbUser> fetchFollowers(long userid) {
+        String key = "fetchFollowers#" + userid;
+        if(cacheManager.exists(key)) {
+            System.out.println("followers cache working");
+            return cacheManager.fetchUsers(key);
+        }
+        System.out.println("From  db followers");
         java.util.Date date= new java.util.Date();
         Timestamp timestamp = new Timestamp(date.getTime());
-        return jdbcTemplate.query("select users.userid, users.username, users.email from users, followers where followers.userid = ? and users.userid=followers.followerid and timestamp > ?", new Object[]{userid, timestamp}, new BeanPropertyRowMapper<>(DbUser.class));
+        List<DbUser> users = jdbcTemplate.query("select users.userid, users.username, users.email from users, followers where followers.userid = ? and users.userid=followers.followerid and timestamp > ?", new Object[]{userid, timestamp}, new BeanPropertyRowMapper<>(DbUser.class));
+        cacheManager.setUsers(users, key);
+        return users;
     }
 
     public List<DbUser> fetchFollowing(long followerid) {
+        String key = "fetchFollowing#" + followerid;
+        if(cacheManager.exists(key)) {
+            System.out.println("following cache working");
+            return cacheManager.fetchUsers(key);
+        }
+        System.out.println("From db following");
         java.util.Date date= new java.util.Date();
         Timestamp timestamp = new Timestamp(date.getTime());
-        return jdbcTemplate.query("select users.userid, users.username, users.email from users, followers where followers.followerid = ? and users.userid=followers.userid and timestamp > ?", new Object[]{followerid, timestamp}, new BeanPropertyRowMapper<>(DbUser.class));
+        List<DbUser> users = jdbcTemplate.query("select users.userid, users.username, users.email from users, followers where followers.followerid = ? and users.userid=followers.userid and timestamp > ?", new Object[]{followerid, timestamp}, new BeanPropertyRowMapper<>(DbUser.class));
+        cacheManager.setUsers(users, key);
+        return users;
     }
-
     public void follow(Long userid, Long followerid) {
         jdbcTemplate.update("DELETE from followers  WHERE userid=? and followerid=?", new Object[]{userid, followerid});
         final SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate);
@@ -98,13 +134,36 @@ public class UserRepository {
         param.put("userid", userid);
         param.put("followerid",followerid);
         insert.execute(param);
+        String key = "fetchFollowers#" + userid;
+        DbUser user;
+        try {
+            if(cacheManager.exists(key)) {
+                user = jdbcTemplate.queryForObject("select users.userid, users.username, users.email from users where userid = ?",new Object[]{followerid}, new BeanPropertyRowMapper<>(DbUser.class));
+                cacheManager.addUser(user, key);
+            }
+            key = "fetchFollowing#" + followerid;
+            if(cacheManager.exists(key)) {
+                user = jdbcTemplate.queryForObject("select users.userid, users.username, users.email from users where userid = ?",new Object[]{userid}, new BeanPropertyRowMapper<>(DbUser.class));
+                cacheManager.addUser(user, key);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        key = "showHomePageTweets#" + followerid + "#" + 0;
+        System.out.println(key + "by follow");
+        jedis.del(key);
     }
 
     public int unfollow(Long userid, Long followerid) {
+        String key = "fetchFollowers#" + userid;
+        cacheManager.delete(key);
+        key = "fetchFollowing#" + followerid;
+        cacheManager.delete(key);
         java.util.Date date= new java.util.Date();
         Timestamp timestamp = new Timestamp(date.getTime());
         return jdbcTemplate.update("UPDATE followers SET timestamp = ? WHERE userid=? and followerid=?", new Object[]{timestamp, userid, followerid});
     }
+
 
     public Integer isFollower(Long userid, Long followerid) {
         java.util.Date date= new java.util.Date();
@@ -127,9 +186,7 @@ public class UserRepository {
         insert.execute(param);
     }
 
-    public void addAccessToken(String reqToken, String accessToken) {
-        jdbcTemplate.update("UPDATE token SET accesstoken = ? WHERE requesttoken = ?", new Object[]{accessToken, reqToken});
-    }
+
 
     public Map<String,Object> fetchUseridByRequestToken(String reqToken) {
         return jdbcTemplate.queryForMap("select * from token where requesttoken = ?", new Object[]{reqToken});
@@ -149,14 +206,29 @@ public class UserRepository {
         }
     }
 
-    public void AddAccessTokenInUserAccessTable(Long userid, String accessToken) {
+    public void addAccessToken(String reqToken, String accessToken) {
+        try{
+            jdbcTemplate.update("UPDATE token SET accesstoken = ? WHERE requesttoken = ?", new Object[]{accessToken, reqToken});
+        }
+        catch (Exception e){
+
+        }
+    }
+
+    public int AddAccessTokenInUserAccessTable(Long userid, String accessToken) {
         final SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate);
         insert.setTableName("useraccesstoken");
         insert.setColumnNames(Arrays.asList("userid", "accesstoken"));
         Map<String, Object> param = new HashMap<>();
         param.put("userid", userid);
         param.put("accesstoken",accessToken);
-        insert.execute(param);
+        try{
+            insert.execute(param);
+            return 1;
+        }
+        catch (Exception e){
+              return -1;
+        }
     }
 
 

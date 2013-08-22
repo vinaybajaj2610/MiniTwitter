@@ -39,7 +39,7 @@
                     </div>
                 </div>
             </form>
-            <div id="error">${error} </div>
+            <div id="error">${msg}${error} </div>
         </div>
     </div>
 
@@ -92,6 +92,7 @@
                     </div>
                 </div>
             </form>
+            <div class="message">${errormsg} </div>
         </div>
     </div>
 </div>

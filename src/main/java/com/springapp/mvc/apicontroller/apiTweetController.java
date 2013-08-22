@@ -1,5 +1,6 @@
 package com.springapp.mvc.apicontroller;
 
+import com.google.gson.Gson;
 import com.springapp.mvc.data.TweetRepository;
 import com.springapp.mvc.data.UserRepository;
 import com.springapp.mvc.model.DbUser;
@@ -33,23 +34,32 @@ public class apiTweetController {
 
     @RequestMapping(value = "/api/createPost", method = RequestMethod.POST)
     @ResponseBody
-    public void createPost(@RequestBody Tweet tweet, HttpServletRequest request, HttpServletResponse response){
-
+    public String createPost(@RequestBody Tweet tweet, HttpServletRequest request, HttpServletResponse response){
+        response.setContentType("application/json");
         DbUser user = userRepository.fetchUser(tweet.getUsername());
         Long userid = userRepository.fetchUseridByAccessToken(request.getHeader("accessToken"));
-        if (user.getUserid().equals(userid)){
+        if ( user.getUserid()!= null && user.getUserid().equals(userid)){
             long newTweet = repository.addTweet(userid, tweet.getUsername(), tweet.getDetails());
+            repository.jedisUpdateOnNewTweet(userid);
             response.setStatus(HttpServletResponse.SC_CREATED);
+            return "Tweet Added successfully";
         }
+        return "Tweet not Added, username is not valid";
     }
 
     @RequestMapping(value = "/api/fetchUsersPosts", method = RequestMethod.POST)
     @ResponseBody
-    public List<Tweet> fetchUserPosts(@RequestParam("username") String username){
+    public String fetchUserPosts(@RequestParam("username") String username){
         DbUser user = userRepository.fetchUser(username);
-        return repository.getTweets(user.getUserid());
+        Gson gson = new Gson();
+        String json;
+        if (user.getUserid()!=null){
+            List<Tweet> tweets=  repository.getTweets(user.getUserid());
+            json = gson.toJson(tweets);
+            return json;
+        }
+        json = gson.toJson("Username is not valid");
+        return json;
     }
-
-
 
 }
