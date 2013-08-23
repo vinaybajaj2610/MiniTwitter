@@ -1,7 +1,7 @@
 <script>
     var tweetid = 0;
     var tabActive =1;
-    var serverAddress ="http://localhost:8080/";
+    var serverAddress ="http://localhost:8080";
 
     function editProfile(){
         window.location = serverAddress + "/editProfile";
